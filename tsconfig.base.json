@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@opencode/core": ["packages/core/src"],
+      "@opencode/opencode-client": ["packages/opencode-client/src"],
+      "@opencode/mcp-client": ["packages/mcp-client/src"],
+      "@opencode/storage": ["packages/storage/src"]
+    }
+  }
+}

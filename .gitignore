@@ -1,0 +1,9 @@
+node_modules/
+dist/
+target/
+.turbo/
+.tauri/
+.env
+.env.*
+.DS_Store
+.runtime/

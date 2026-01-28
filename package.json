@@ -1,0 +1,9 @@
+{
+  "name": "mcp-replay",
+  "private": true,
+  "packageManager": "pnpm@9.12.3",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://tauri.app/v2/schema.json",
+  "productName": "OpenCode Replay",
+  "version": "0.1.0",
+  "identifier": "ai.opencode.replay",
+  "build": {
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "../dist",
+    "beforeDevCommand": "pnpm --filter @opencode/gui dev",
+    "beforeBuildCommand": "pnpm --filter @opencode/gui build"
+  },
+  "bundle": {
+    "icon": ["/usr/share/pixmaps/antigravity.png"]
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "OpenCode Replay",
+        "width": 1280,
+        "height": 820,
+        "minWidth": 1100,
+        "minHeight": 720
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  }
+}

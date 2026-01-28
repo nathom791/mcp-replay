@@ -1,0 +1,44 @@
+{
+  "name": "@opencode/gui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "^4.6.0",
+    "@opencode/core": "workspace:*",
+    "@opencode/mcp-client": "workspace:*",
+    "@opencode/opencode-client": "workspace:*",
+    "@opencode/storage": "workspace:*",
+    "@tanstack/react-query": "^5.51.5",
+    "@tanstack/react-table": "^8.20.5",
+    "@tauri-apps/api": "^2.0.2",
+    "clsx": "^2.1.1",
+    "date-fns": "^3.6.0",
+    "jsondiffpatch": "^0.5.0",
+    "lucide-react": "^0.415.0",
+    "monaco-editor": "^0.49.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-json-view": "^1.21.3",
+    "zustand": "^4.5.4"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.9.6",
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.6",
+    "vite-tsconfig-paths": "^4.3.2"
+  }
+}

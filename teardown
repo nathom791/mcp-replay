@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+RUNTIME_DIR="${ROOT_DIR}/.runtime"
+PID_FILE="${RUNTIME_DIR}/tauri.pid"
+MODE_FILE="${RUNTIME_DIR}/tauri.mode"
+
+if [[ ! -f "${PID_FILE}" ]]; then
+  echo "No running OpenCode Replay instance found."
+  exit 0
+fi
+
+PID="$(cat "${PID_FILE}")"
+MODE="group"
+if [[ -f "${MODE_FILE}" ]]; then
+  MODE="$(cat "${MODE_FILE}")"
+fi
+if kill -0 "${PID}" 2>/dev/null; then
+  echo "Stopping OpenCode Replay (PID ${PID})..."
+  if [[ "${MODE}" == "group" ]]; then
+    kill -- -"${PID}" 2>/dev/null || true
+  else
+    kill "${PID}" 2>/dev/null || true
+  fi
+  for _ in {1..10}; do
+    if ! kill -0 "${PID}" 2>/dev/null; then
+      break
+    fi
+    sleep 1
+  done
+  if kill -0 "${PID}" 2>/dev/null; then
+    if [[ "${MODE}" == "group" ]]; then
+      kill -9 -- -"${PID}" 2>/dev/null || true
+    else
+      kill -9 "${PID}" 2>/dev/null || true
+    fi
+  fi
+fi
+
+rm -f "${PID_FILE}"
+rm -f "${MODE_FILE}"
+echo "OpenCode Replay stopped."
