@@ -230,6 +230,17 @@ export type RecordedSession = {
   updatedAt: number
 }
 
+export type Suite = {
+  id: string
+  name: string
+  createdAt: number
+}
+
+export type SessionSuite = {
+  sessionId: string
+  suiteId: string
+}
+
 export type ReplayRunToolCall = {
   id: string
   recordedToolCallId: string

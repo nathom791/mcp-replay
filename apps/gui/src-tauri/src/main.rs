@@ -132,7 +132,18 @@ fn main() {
             mcp::mcp_list_tools,
             mcp::mcp_call_tool,
             storage::storage_list_sessions,
+            storage::storage_list_suites,
+            storage::storage_create_suite,
+            storage::storage_delete_suite,
+            storage::storage_assign_suite,
+            storage::storage_unassign_suite,
+            storage::storage_list_session_suites,
+            storage::storage_get_session_payload,
             storage::storage_save_session,
+            storage::storage_duplicate_session,
+            storage::storage_delete_session,
+            storage::storage_replace_tool_calls,
+            storage::storage_update_tool_call_request,
             storage::storage_save_replay_run,
         ])
         .run(tauri::generate_context!())

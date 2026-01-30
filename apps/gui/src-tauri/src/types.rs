@@ -83,6 +83,21 @@ pub struct RecordedSession {
     pub updated_at: i64,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
+#[serde(rename_all = "camelCase")]
+pub struct Suite {
+    pub id: String,
+    pub name: String,
+    pub created_at: i64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
+#[serde(rename_all = "camelCase")]
+pub struct SessionSuite {
+    pub session_id: String,
+    pub suite_id: String,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RecordedMessage {
@@ -111,6 +126,25 @@ pub struct RecordedToolCall {
     pub timing: Option<Value>,
     pub status: String,
     pub disabled: Option<bool>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RecordedToolCallRequestUpdate {
+    pub session_id: String,
+    pub tool_call_id: String,
+    pub mcp_server_name: Option<String>,
+    pub tool_name: String,
+    pub arguments_json: Value,
+    pub status: Option<String>,
+    pub disabled: Option<bool>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RecordedSessionDuplicateRequest {
+    pub session_id: String,
+    pub title: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
