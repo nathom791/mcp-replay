@@ -19,16 +19,16 @@ export const ReplayControls = ({
   isRunning: boolean
 }) => (
   <div className="flex flex-wrap items-center gap-3">
-    <div className="flex rounded-full border border-black/10 bg-white/80 p-1 text-xs">
+    <div className="flex rounded-full border border-border1/10 bg-surface3/80 p-1 text-xs">
       {modes.map((option) => (
         <button
           key={option}
           onClick={() => onModeChange(option)}
           className={clsx(
-            "rounded-full px-3 py-1 capitalize",
+            "ui-focus rounded-full px-3 py-1 capitalize transition duration-ui ease-ease-out",
             mode === option
-              ? "bg-ink text-white"
-              : "text-black/60 hover:text-black",
+              ? "bg-surface1 text-text1 shadow-pressed"
+              : "text-text2 hover:bg-ink/5 hover:text-text1",
           )}
         >
           {option}
@@ -38,14 +38,14 @@ export const ReplayControls = ({
     <button
       onClick={onRun}
       disabled={isRunning}
-      className="flex items-center gap-2 rounded-full bg-ink px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+      className="flex items-center gap-2 rounded-full bg-cobalt px-4 py-2 text-xs font-semibold text-white transition duration-ui ease-ease-out hover:bg-cobalt-600 disabled:opacity-60"
     >
       {isRunning ? <Pause size={14} /> : <Play size={14} />}
       {isRunning ? "Running" : "Run replay"}
     </button>
     <button
       onClick={onStop}
-      className="flex items-center gap-2 rounded-full border border-black/10 px-4 py-2 text-xs font-semibold text-black/70"
+      className="flex items-center gap-2 rounded-full border border-border1/10 bg-surface3/70 px-4 py-2 text-xs font-semibold text-text1 transition duration-ui ease-ease-out hover:bg-surface3"
     >
       <Square size={14} />
       Stop

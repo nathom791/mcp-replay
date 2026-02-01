@@ -143,10 +143,10 @@ const SortableToolCallRow = ({
         }
       }}
       className={clsx(
-        "cursor-pointer rounded-2xl bg-white/70 px-2 py-2 transition-colors duration-200 hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30",
+        "ui-focus cursor-pointer rounded-2xl border border-border1/10 bg-surface1/65 px-2 py-2 transition duration-ui ease-ease-out hover:bg-surface1/90",
         toolCall.disabled && "opacity-70",
-        isDragging && "ring-2 ring-ink/30 shadow-panel",
-        isOver && "bg-white/80",
+        isDragging && "ring-2 ring-cobalt/25 shadow-panel",
+        isOver && "bg-surface1/80",
       )}
     >
       <div className="grid min-w-0 grid-cols-[36px_40px_minmax(120px,1.1fr)_minmax(160px,1.6fr)_minmax(90px,0.9fr)_140px] items-center gap-2">
@@ -160,7 +160,7 @@ const SortableToolCallRow = ({
             onMouseDown={(event) => event.stopPropagation()}
             onKeyDown={(event) => event.stopPropagation()}
             aria-label={`Reorder tool call ${index + 1}`}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-dashed border-black/10 text-black/50 transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30"
+            className="ui-focus flex h-8 w-8 items-center justify-center rounded-full border border-dashed border-border1/20 bg-surface1/40 text-text3 transition duration-ui ease-ease-out hover:bg-ink/5 hover:text-text1"
           >
             <GripVertical size={14} />
           </button>
@@ -183,7 +183,7 @@ const SortableToolCallRow = ({
               onMove(toolCall.id, -1)
             }}
             disabled={index === 0}
-            className="rounded-full border border-black/10 p-1 text-black/60 disabled:opacity-30"
+            className="ui-focus rounded-full border border-border1/10 bg-surface1/40 p-1 text-text2 transition duration-ui ease-ease-out hover:bg-surface1/70 hover:text-text1 disabled:opacity-30"
             aria-label="Move up"
           >
             <ArrowUp size={14} />
@@ -194,7 +194,7 @@ const SortableToolCallRow = ({
               onMove(toolCall.id, 1)
             }}
             disabled={index === total - 1}
-            className="rounded-full border border-black/10 p-1 text-black/60 disabled:opacity-30"
+            className="ui-focus rounded-full border border-border1/10 bg-surface1/40 p-1 text-text2 transition duration-ui ease-ease-out hover:bg-surface1/70 hover:text-text1 disabled:opacity-30"
             aria-label="Move down"
           >
             <ArrowDown size={14} />
@@ -204,7 +204,7 @@ const SortableToolCallRow = ({
               event.stopPropagation()
               onDuplicate(toolCall.id)
             }}
-            className="rounded-full border border-black/10 p-1 text-black/60"
+            className="ui-focus rounded-full border border-border1/10 bg-surface1/40 p-1 text-text2 transition duration-ui ease-ease-out hover:bg-surface1/70 hover:text-text1"
             aria-label="Duplicate"
           >
             <Copy size={14} />
@@ -214,7 +214,7 @@ const SortableToolCallRow = ({
               event.stopPropagation()
               onRemove(toolCall.id)
             }}
-            className="rounded-full border border-black/10 p-1 text-[color:var(--ember)]"
+            className="ui-focus rounded-full border border-border1/10 bg-surface1/40 p-1 text-danger transition duration-ui ease-ease-out hover:bg-danger/10"
             aria-label="Remove"
           >
             <Trash2 size={14} />
@@ -250,11 +250,11 @@ const DeleteSessionModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/35 px-4 py-6"
       onClick={onCancel}
     >
       <div
-        className="w-full max-w-lg rounded-3xl border border-black/10 bg-white p-6 shadow-panel"
+        className="overlay-glass w-full max-w-lg rounded-3xl p-6"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -262,11 +262,11 @@ const DeleteSessionModal = ({
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-black/50">Delete session</p>
-            <h2 id="delete-session-modal-title" className="text-lg font-semibold text-ink">
+            <p className="text-xs uppercase tracking-[0.2em] text-text3">Delete session</p>
+            <h2 id="delete-session-modal-title" className="text-lg font-semibold text-text1">
               {sessionTitle}
             </h2>
-            <p className="mt-1 text-xs text-black/50">
+            <p className="mt-1 text-xs text-text3">
               This will permanently remove the session, its tool calls, messages, and replay
               runs.
             </p>
@@ -274,7 +274,7 @@ const DeleteSessionModal = ({
           <button
             onClick={onCancel}
             disabled={isBusy}
-            className="rounded-full border border-black/10 p-2 text-black/50 hover:text-black disabled:opacity-60"
+            className="ui-focus rounded-full border border-border1/10 bg-surface1/40 p-2 text-text2 transition duration-ui ease-ease-out hover:bg-surface1/70 hover:text-text1 disabled:opacity-60"
             aria-label="Close"
           >
             <X size={16} />
@@ -282,21 +282,21 @@ const DeleteSessionModal = ({
         </div>
 
         {error && (
-          <p className="mt-4 text-xs text-[color:var(--ember)]">{error}</p>
+          <p className="mt-4 text-xs text-danger">{error}</p>
         )}
 
         <div className="mt-6 flex flex-wrap justify-end gap-2">
           <button
             onClick={onCancel}
             disabled={isBusy}
-            className="rounded-full border border-black/10 px-4 py-2 text-xs font-semibold text-black/70 disabled:opacity-60"
+            className="rounded-full border border-border1/10 bg-surface3/70 px-4 py-2 text-xs font-semibold text-text1 transition duration-ui ease-ease-out hover:bg-surface3 disabled:opacity-60"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
             disabled={isBusy}
-            className="flex items-center gap-2 rounded-full bg-ember px-4 py-2 text-xs font-semibold text-ink disabled:opacity-60"
+            className="flex items-center gap-2 rounded-full bg-danger px-4 py-2 text-xs font-semibold text-white transition duration-ui ease-ease-out hover:bg-danger/90 disabled:opacity-60"
           >
             {isBusy ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
             {isBusy ? "Deleting" : "Delete session"}
@@ -407,10 +407,12 @@ export const LibraryView = () => {
   const sessionSuitesBySessionId = useMemo(() => {
     const entries: Record<string, string[]> = {}
     sessionSuites.forEach((entry) => {
-      if (!entries[entry.sessionId]) {
-        entries[entry.sessionId] = []
+      const current = entries[entry.sessionId]
+      if (current) {
+        current.push(entry.suiteId)
+        return
       }
-      entries[entry.sessionId].push(entry.suiteId)
+      entries[entry.sessionId] = [entry.suiteId]
     })
     return entries
   }, [sessionSuites])
@@ -494,7 +496,8 @@ export const LibraryView = () => {
       return
     }
     if (!selectedServer || !mcpServers.includes(selectedServer)) {
-      setSelectedServer(mcpServers[0])
+      const firstServer = mcpServers[0]
+      if (firstServer) setSelectedServer(firstServer)
     }
   }, [mcpServers, selectedServer])
 
@@ -511,7 +514,8 @@ export const LibraryView = () => {
       (tool) => tool.name === selectedToolName,
     )
     if (!hasTool) {
-      setSelectedToolName(toolsForSelectedServer[0].name)
+      const firstTool = toolsForSelectedServer[0]
+      if (firstTool) setSelectedToolName(firstTool.name)
     }
   }, [selectedServer, selectedToolName, toolsForSelectedServer])
 
@@ -787,6 +791,7 @@ export const LibraryView = () => {
       }
       const next = [...calls]
       const [moved] = next.splice(index, 1)
+      if (!moved) return calls
       next.splice(targetIndex, 0, moved)
       return next
     })
@@ -801,6 +806,7 @@ export const LibraryView = () => {
       const index = calls.findIndex((call) => call.id === toolCallId)
       if (index < 0) return calls
       const original = calls[index]
+      if (!original) return calls
       const next = [...calls]
       next.splice(index + 1, 0, {
         ...original,
@@ -891,22 +897,22 @@ export const LibraryView = () => {
 
   return (
     <div className="grid h-full grid-cols-1 gap-6 xl:grid-cols-[320px_1fr]">
-      <section className="panel-bg flex h-full flex-col rounded-3xl border border-black/5 p-4 shadow-panel">
+      <section className="panel-bg flex h-full flex-col rounded-3xl p-4">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold text-ink">Recorded library</p>
-          <span className="text-xs text-black/50">{sessionCountLabel}</span>
+          <p className="text-sm font-semibold text-text1">Recorded library</p>
+          <span className="text-xs text-text3">{sessionCountLabel}</span>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <div className="flex rounded-full border border-black/10 bg-white/80 p-1 text-[0.65rem] uppercase tracking-[0.2em]">
+          <div className="flex rounded-full border border-border1/10 bg-surface3/80 p-1 text-[0.65rem] uppercase tracking-[0.2em] text-text3">
             {replayModes.map((mode) => (
               <button
                 key={mode}
                 onClick={() => setReplayMode(mode)}
                 className={clsx(
-                  "rounded-full px-3 py-1 text-xs capitalize tracking-normal",
+                  "ui-focus rounded-full px-3 py-1 text-xs capitalize tracking-normal transition duration-ui ease-ease-out",
                   replayMode === mode
-                    ? "bg-ink text-white"
-                    : "text-black/60 hover:text-black",
+                    ? "bg-surface1 text-text1 shadow-pressed"
+                    : "text-text2 hover:bg-ink/5 hover:text-text1",
                 )}
               >
                 {mode}
@@ -916,7 +922,7 @@ export const LibraryView = () => {
           <button
             onClick={handlePlayAll}
             disabled={isReplayBusy || filteredSessions.length === 0}
-            className="flex items-center gap-2 rounded-full bg-ink px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+            className="flex items-center gap-2 rounded-full bg-cobalt px-4 py-2 text-xs font-semibold text-white transition duration-ui ease-ease-out hover:bg-cobalt-600 disabled:opacity-60"
           >
             {isPlayingAll ? (
               <Loader2 size={14} className="animate-spin" />
@@ -927,24 +933,24 @@ export const LibraryView = () => {
           </button>
         </div>
         {replayError && (
-          <p className="mt-2 text-xs text-[color:var(--ember)]">{replayError}</p>
+          <p className="mt-2 text-xs text-danger">{replayError}</p>
         )}
         {copySessionError && (
-          <p className="mt-2 text-xs text-[color:var(--ember)]">{copySessionError}</p>
+          <p className="mt-2 text-xs text-danger">{copySessionError}</p>
         )}
-        <div className="mt-4 rounded-2xl border border-black/10 bg-white/80 p-3">
+        <div className="mt-4 rounded-2xl border border-border1/10 bg-surface2/50 p-3">
           <div className="flex items-center justify-between">
-            <p className="text-xs uppercase tracking-[0.2em] text-black/50">Suites</p>
-            <span className="text-xs text-black/50">{suites.length}</span>
+            <p className="text-xs uppercase tracking-[0.2em] text-text3">Suites</p>
+            <span className="text-xs text-text3">{suites.length}</span>
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             <button
               onClick={() => setSuiteFilter("all")}
               className={clsx(
-                "rounded-full px-3 py-1 text-xs font-semibold",
+                "ui-focus rounded-full border px-3 py-1 text-xs font-semibold transition duration-ui ease-ease-out",
                 suiteFilter === "all"
-                  ? "bg-ink text-white"
-                  : "border border-black/10 text-black/60 hover:text-black",
+                  ? "border-cobalt/30 bg-cobalt/10 text-text1"
+                  : "border-border1/10 bg-surface1/40 text-text2 hover:bg-surface1/70 hover:text-text1",
               )}
             >
               All
@@ -952,10 +958,10 @@ export const LibraryView = () => {
             <button
               onClick={() => setSuiteFilter("unassigned")}
               className={clsx(
-                "rounded-full px-3 py-1 text-xs font-semibold",
+                "ui-focus rounded-full border px-3 py-1 text-xs font-semibold transition duration-ui ease-ease-out",
                 suiteFilter === "unassigned"
-                  ? "bg-ink text-white"
-                  : "border border-black/10 text-black/60 hover:text-black",
+                  ? "border-cobalt/30 bg-cobalt/10 text-text1"
+                  : "border-border1/10 bg-surface1/40 text-text2 hover:bg-surface1/70 hover:text-text1",
               )}
             >
               Unassigned
@@ -965,10 +971,10 @@ export const LibraryView = () => {
                 key={suite.id}
                 onClick={() => setSuiteFilter(suite.id)}
                 className={clsx(
-                  "rounded-full px-3 py-1 text-xs font-semibold",
+                  "ui-focus rounded-full border px-3 py-1 text-xs font-semibold transition duration-ui ease-ease-out",
                   suiteFilter === suite.id
-                    ? "bg-ink text-white"
-                    : "border border-black/10 text-black/60 hover:text-black",
+                    ? "border-cobalt/30 bg-cobalt/10 text-text1"
+                    : "border-border1/10 bg-surface1/40 text-text2 hover:bg-surface1/70 hover:text-text1",
                 )}
               >
                 {suite.name}
@@ -980,19 +986,19 @@ export const LibraryView = () => {
               value={newSuiteName}
               onChange={(event) => setNewSuiteName(event.target.value)}
               placeholder="New suite name"
-              className="min-w-[140px] flex-1 rounded-full border border-black/10 bg-white px-3 py-1 text-xs"
+              className="ui-focus min-w-[140px] flex-1 rounded-full border border-border1/10 bg-surface3/80 px-3 py-1 text-xs text-text1 placeholder:text-text3"
             />
             <button
               onClick={handleCreateSuite}
               disabled={isCreatingSuite}
-              className="flex items-center gap-1 rounded-full bg-ember px-3 py-1 text-xs font-semibold text-ink disabled:opacity-60"
+              className="flex items-center gap-1 rounded-full bg-cobalt px-3 py-1 text-xs font-semibold text-white transition duration-ui ease-ease-out hover:bg-cobalt-600 disabled:opacity-60"
             >
               <Plus size={14} />
               {isCreatingSuite ? "Creating" : "Create"}
             </button>
           </div>
           {suiteCreateError && (
-            <p className="mt-2 text-xs text-[color:var(--ember)]">{suiteCreateError}</p>
+            <p className="mt-2 text-xs text-danger">{suiteCreateError}</p>
           )}
         </div>
         <div className="mt-4 flex-1 space-y-2 overflow-y-auto pr-1">
@@ -1020,10 +1026,10 @@ export const LibraryView = () => {
                   }
                 }}
                 className={clsx(
-                  "flex w-full flex-col gap-2 rounded-2xl px-3 py-2 text-left transition",
+                  "ui-focus relative flex w-full flex-col gap-2 rounded-2xl border px-3 py-2 text-left transition duration-ui ease-ease-out",
                   selectedSessionId === session.id
-                    ? "bg-ink text-white"
-                    : "bg-white/80 text-ink hover:bg-white",
+                    ? "border-cobalt/30 bg-cobalt/10 pl-4 ring-1 ring-cobalt/20 before:content-[''] before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[2px] before:rounded-r before:bg-cobalt"
+                    : "border-border1/10 bg-surface1/65 hover:bg-surface1/90",
                 )}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -1035,8 +1041,8 @@ export const LibraryView = () => {
                       className={clsx(
                         "mt-1 block text-xs",
                         selectedSessionId === session.id
-                          ? "text-white/70"
-                          : "text-black/50",
+                          ? "text-text2"
+                          : "text-text3",
                       )}
                     >
                       Recorded {formatRelativeTime(session.updatedAt)}
@@ -1050,10 +1056,7 @@ export const LibraryView = () => {
                       }}
                       disabled={isReplayBusy}
                       className={clsx(
-                        "flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold",
-                        selectedSessionId === session.id
-                          ? "border border-white/30 text-white"
-                          : "border border-black/10 text-black/60",
+                        "ui-focus flex items-center gap-1 rounded-full border border-border1/10 bg-surface1/40 px-3 py-1 text-xs font-semibold text-text2 transition duration-ui ease-ease-out hover:bg-surface1/70 hover:text-text1",
                         isReplayBusy && "opacity-60",
                       )}
                     >
@@ -1071,10 +1074,7 @@ export const LibraryView = () => {
                       }}
                       disabled={Boolean(copyingSessionId)}
                       className={clsx(
-                        "flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold",
-                        selectedSessionId === session.id
-                          ? "border border-white/30 text-white"
-                          : "border border-black/10 text-black/60",
+                        "ui-focus flex items-center gap-1 rounded-full border border-border1/10 bg-surface1/40 px-3 py-1 text-xs font-semibold text-text2 transition duration-ui ease-ease-out hover:bg-surface1/70 hover:text-text1",
                         Boolean(copyingSessionId) && "opacity-60",
                       )}
                     >
@@ -1095,10 +1095,7 @@ export const LibraryView = () => {
                       }}
                       disabled={deleteDisabled}
                       className={clsx(
-                        "flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold",
-                        selectedSessionId === session.id
-                          ? "border border-white/30 text-[color:var(--ember)]"
-                          : "border border-black/10 text-[color:var(--ember)]",
+                        "ui-focus flex items-center gap-1 rounded-full border border-border1/10 bg-surface1/40 px-3 py-1 text-xs font-semibold text-danger transition duration-ui ease-ease-out hover:bg-danger/10",
                         deleteDisabled && "opacity-60",
                       )}
                     >
@@ -1116,12 +1113,7 @@ export const LibraryView = () => {
                     {suiteNames.map((name) => (
                       <span
                         key={name}
-                        className={clsx(
-                          "rounded-full px-2 py-0.5 text-[0.65rem] font-semibold",
-                          selectedSessionId === session.id
-                            ? "bg-white/20 text-white"
-                            : "bg-black/5 text-black/60",
-                        )}
+                        className="rounded-full bg-surface3/70 px-2 py-0.5 text-[0.65rem] font-semibold text-text2"
                       >
                         {name}
                       </span>
@@ -1134,11 +1126,11 @@ export const LibraryView = () => {
                       "text-xs",
                       runStatus.state === "running"
                         ? selectedSessionId === session.id
-                          ? "text-white/70"
-                          : "text-black/50"
+                          ? "text-text2"
+                          : "text-text3"
                         : runStatus.state === "error"
-                          ? "text-[color:var(--ember)]"
-                          : "text-[color:var(--moss)]",
+                          ? "text-danger"
+                          : "text-moss",
                     )}
                   >
                     {runStatus.state === "running" && "Running replay..."}
@@ -1155,23 +1147,23 @@ export const LibraryView = () => {
             )
           })}
           {sessions.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-black/10 px-3 py-4 text-xs text-black/50">
+            <div className="rounded-2xl border border-dashed border-border1/15 bg-surface1/40 px-3 py-4 text-xs text-text3">
               No recorded sessions yet. Save a session from the Sessions tab.
             </div>
           )}
           {sessions.length > 0 && filteredSessions.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-black/10 px-3 py-4 text-xs text-black/50">
+            <div className="rounded-2xl border border-dashed border-border1/15 bg-surface1/40 px-3 py-4 text-xs text-text3">
               No sessions match this suite filter.
             </div>
           )}
         </div>
       </section>
 
-      <section className="panel-bg flex h-full flex-col gap-4 rounded-3xl border border-black/5 p-6 shadow-panel">
+      <section className="panel-bg flex h-full flex-col gap-4 rounded-3xl p-6">
         {!selectedSessionId && (
           <div className="flex h-full flex-col items-center justify-center text-center">
             <p className="text-lg font-semibold">Select a session</p>
-            <p className="mt-2 text-sm text-black/50">
+            <p className="mt-2 text-sm text-text3">
               Pick a recorded session to edit the MCP tool timeline.
             </p>
           </div>
@@ -1180,14 +1172,14 @@ export const LibraryView = () => {
         {selectedSessionId && payloadLoading && (
           <div className="flex h-full flex-col items-center justify-center text-center">
             <p className="text-lg font-semibold">Loading session</p>
-            <p className="mt-2 text-sm text-black/50">Fetching stored tool calls...</p>
+            <p className="mt-2 text-sm text-text3">Fetching stored tool calls...</p>
           </div>
         )}
 
         {selectedSessionId && payloadError && (
           <div className="flex h-full flex-col items-center justify-center text-center">
             <p className="text-lg font-semibold">Session unavailable</p>
-            <p className="mt-2 text-sm text-black/50">{payloadErrorText}</p>
+            <p className="mt-2 text-sm text-text3">{payloadErrorText}</p>
           </div>
         )}
 
@@ -1195,11 +1187,11 @@ export const LibraryView = () => {
           <>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-black/50">Session</p>
-                <p className="text-lg font-semibold text-ink">
+                <p className="text-xs uppercase tracking-[0.2em] text-text3">Session</p>
+                <p className="text-lg font-semibold text-text1">
                   {payload.session.title || "Untitled session"}
                 </p>
-                <p className="text-xs text-black/50">
+                <p className="text-xs text-text3">
                   Updated {formatRelativeTime(payload.session.updatedAt)}
                 </p>
               </div>
@@ -1207,7 +1199,7 @@ export const LibraryView = () => {
                 <button
                   onClick={handleSave}
                   disabled={!hasEdits || isSaving}
-                  className="flex items-center gap-2 rounded-full bg-ink px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+                  className="flex items-center gap-2 rounded-full bg-cobalt px-4 py-2 text-xs font-semibold text-white transition duration-ui ease-ease-out hover:bg-cobalt-600 disabled:opacity-60"
                 >
                   <Save size={14} />
                   {isSaving ? "Saving" : "Save changes"}
@@ -1215,7 +1207,7 @@ export const LibraryView = () => {
                 <button
                   onClick={handleDiscard}
                   disabled={!hasEdits || isSaving}
-                  className="flex items-center gap-2 rounded-full border border-black/10 px-4 py-2 text-xs font-semibold text-black/70 disabled:opacity-60"
+                  className="flex items-center gap-2 rounded-full border border-border1/10 bg-surface3/70 px-4 py-2 text-xs font-semibold text-text1 transition duration-ui ease-ease-out hover:bg-surface3 disabled:opacity-60"
                 >
                   <RotateCcw size={14} />
                   Discard
@@ -1224,13 +1216,13 @@ export const LibraryView = () => {
             </div>
 
             {saveError && (
-              <p className="text-xs text-[color:var(--ember)]">Save failed: {saveError}</p>
+              <p className="text-xs text-danger">Save failed: {saveError}</p>
             )}
 
-            <div className="rounded-2xl border border-black/10 bg-white/80 p-4">
+            <div className="rounded-2xl border border-border1/10 bg-surface2/50 p-4">
               <div className="flex items-center justify-between">
-                <p className="text-xs uppercase tracking-[0.2em] text-black/50">Suites</p>
-                <span className="text-xs text-black/50">
+                <p className="text-xs uppercase tracking-[0.2em] text-text3">Suites</p>
+                <span className="text-xs text-text3">
                   {selectedSessionSuites.length} assigned
                 </span>
               </div>
@@ -1243,10 +1235,10 @@ export const LibraryView = () => {
                       onClick={() => handleToggleSuite(suite.id)}
                       disabled={suiteActionBusy}
                       className={clsx(
-                        "rounded-full px-3 py-1 text-xs font-semibold",
+                        "ui-focus rounded-full border px-3 py-1 text-xs font-semibold transition duration-ui ease-ease-out",
                         isAssigned
-                          ? "bg-ink text-white"
-                          : "border border-black/10 text-black/60 hover:text-black",
+                          ? "border-cobalt/30 bg-cobalt/10 text-text1"
+                          : "border-border1/10 bg-surface1/40 text-text2 hover:bg-surface1/70 hover:text-text1",
                         suiteActionBusy && "opacity-60",
                       )}
                     >
@@ -1255,30 +1247,30 @@ export const LibraryView = () => {
                   )
                 })}
                 {suites.length === 0 && (
-                  <p className="text-xs text-black/50">
+                  <p className="text-xs text-text3">
                     No suites yet. Create one from the library list.
                   </p>
                 )}
               </div>
               {suiteAssignError && (
-                <p className="mt-2 text-xs text-[color:var(--ember)]">{suiteAssignError}</p>
+                <p className="mt-2 text-xs text-danger">{suiteAssignError}</p>
               )}
             </div>
 
-            <div className="rounded-2xl border border-black/10 bg-white/80 p-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-black/50">
+            <div className="rounded-2xl border border-border1/10 bg-surface2/50 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-text3">
                 Add tool call
               </p>
               <div className="mt-3 flex flex-wrap items-end gap-3">
                 <div className="flex min-w-[160px] flex-1 flex-col gap-1">
-                  <label className="text-[0.65rem] uppercase tracking-[0.2em] text-black/40">
+                  <label className="text-[0.65rem] uppercase tracking-[0.2em] text-text3">
                     Server
                   </label>
                   <select
                     value={selectedServer}
                     onChange={(event) => setSelectedServer(event.target.value)}
                     disabled={mcpServers.length === 0}
-                    className="rounded-2xl border border-black/10 bg-white px-3 py-2 text-xs"
+                    className="ui-focus rounded-2xl border border-border1/10 bg-surface3/80 px-3 py-2 text-xs text-text1 disabled:opacity-60"
                   >
                     {mcpServers.length === 0 && (
                       <option value="">No MCP servers</option>
@@ -1291,14 +1283,14 @@ export const LibraryView = () => {
                   </select>
                 </div>
                 <div className="flex min-w-[220px] flex-[2] flex-col gap-1">
-                  <label className="text-[0.65rem] uppercase tracking-[0.2em] text-black/40">
+                  <label className="text-[0.65rem] uppercase tracking-[0.2em] text-text3">
                     Tool
                   </label>
                   <select
                     value={selectedToolName}
                     onChange={(event) => setSelectedToolName(event.target.value)}
                     disabled={!selectedServer || selectedToolsLoading}
-                    className="rounded-2xl border border-black/10 bg-white px-3 py-2 text-xs"
+                    className="ui-focus rounded-2xl border border-border1/10 bg-surface3/80 px-3 py-2 text-xs text-text1 disabled:opacity-60"
                   >
                     {toolsForSelectedServer.length === 0 && (
                       <option value="">
@@ -1315,14 +1307,14 @@ export const LibraryView = () => {
                 <button
                   onClick={handleAddToolCall}
                   disabled={!canAddToolCall}
-                  className="flex items-center gap-2 rounded-full bg-ember px-4 py-2 text-xs font-semibold text-ink disabled:opacity-60"
+                  className="flex items-center gap-2 rounded-full bg-cobalt px-4 py-2 text-xs font-semibold text-white transition duration-ui ease-ease-out hover:bg-cobalt-600 disabled:opacity-60"
                 >
                   <Plus size={14} />
                   Add call
                 </button>
               </div>
               {mcpServers.length === 0 && (
-                <p className="mt-2 text-xs text-black/50">
+                <p className="mt-2 text-xs text-text3">
                   No MCP servers available. Connect to OpenCode to load tools.
                 </p>
               )}
@@ -1330,13 +1322,13 @@ export const LibraryView = () => {
 
             <div className="flex items-center justify-between">
               <p className="text-sm font-semibold">Tool calls</p>
-              <span className="text-xs text-black/50">
+              <span className="text-xs text-text3">
                 {draftToolCalls.length} calls
               </span>
             </div>
             <div className="flex-1 overflow-y-auto">
               <div className="text-xs">
-                <div className="grid grid-cols-[36px_40px_minmax(120px,1.1fr)_minmax(160px,1.6fr)_minmax(90px,0.9fr)_140px] items-center gap-2 pb-2 text-[0.65rem] uppercase tracking-[0.2em] text-black/40">
+                <div className="grid grid-cols-[36px_40px_minmax(120px,1.1fr)_minmax(160px,1.6fr)_minmax(90px,0.9fr)_140px] items-center gap-2 pb-2 text-[0.65rem] uppercase tracking-[0.2em] text-text3">
                   <span className="sr-only">Reorder</span>
                   <span>#</span>
                   <span>Server</span>
@@ -1368,7 +1360,7 @@ export const LibraryView = () => {
                         />
                       ))}
                       {draftToolCalls.length === 0 && (
-                        <div className="rounded-2xl border border-dashed border-black/10 py-4 text-center text-xs text-black/50">
+                        <div className="rounded-2xl border border-dashed border-border1/15 bg-surface1/40 py-4 text-center text-xs text-text3">
                           No tool calls recorded yet. Add one from the tool picker.
                         </div>
                       )}

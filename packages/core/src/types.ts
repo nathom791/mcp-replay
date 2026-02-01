@@ -230,6 +230,12 @@ export type RecordedSession = {
   updatedAt: number
 }
 
+export type RecordedSessionPayload = {
+  session: RecordedSession
+  messages: RecordedMessage[]
+  toolCalls: RecordedToolCall[]
+}
+
 export type Suite = {
   id: string
   name: string

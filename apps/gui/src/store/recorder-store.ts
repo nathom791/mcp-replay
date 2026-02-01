@@ -8,6 +8,39 @@ import type {
 } from "@opencode/core"
 import { extractRecordedToolCalls } from "@opencode/core"
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null
+
+const getMessagePartFromEvent = (payload: OpenCodeEvent["payload"]): OpenCodePart | null => {
+  if (payload.type !== "message.part.updated") return null
+  if (!isRecord(payload)) return null
+  const properties = payload.properties
+  if (!isRecord(properties)) return null
+  const part = properties.part
+  if (!isRecord(part)) return null
+  if (typeof part.id !== "string") return null
+  if (typeof part.sessionID !== "string") return null
+  if (typeof part.messageID !== "string") return null
+  if (typeof part.type !== "string") return null
+  return part as OpenCodePart
+}
+
+const getRemovedPartInfoFromEvent = (
+  payload: OpenCodeEvent["payload"],
+): { sessionID: string; messageID: string; partID: string } | null => {
+  if (payload.type !== "message.part.removed") return null
+  if (!isRecord(payload)) return null
+  const properties = payload.properties
+  if (!isRecord(properties)) return null
+  const sessionID = properties.sessionID
+  const messageID = properties.messageID
+  const partID = properties.partID
+  if (typeof sessionID !== "string") return null
+  if (typeof messageID !== "string") return null
+  if (typeof partID !== "string") return null
+  return { sessionID, messageID, partID }
+}
+
 type RecorderState = {
   messagesBySession: Record<string, OpenCodeMessageWithParts[]>
   toolCallsBySession: Record<string, RecordedToolCall[]>
@@ -48,14 +81,11 @@ export const useRecorderStore = create<RecorderState>((set, get) => ({
   },
   applyEvent: (event, mcpServers) => {
     const payload = event.payload
-    if (!payload || typeof payload !== "object" || !("type" in payload)) {
-      return
-    }
-    if (payload.type === "message.part.updated") {
-      const part = (payload as { properties: { part: OpenCodePart } }).properties.part
+    const part = getMessagePartFromEvent(payload)
+    if (part) {
       const sessionId = part.sessionID
       const messages = get().messagesBySession[sessionId] ?? []
-      const nextMessages = messages.map((message) => {
+      const nextMessages: OpenCodeMessageWithParts[] = messages.map((message) => {
         if (message.info.id !== part.messageID) {
           return message
         }
@@ -67,20 +97,18 @@ export const useRecorderStore = create<RecorderState>((set, get) => ({
       const hasMessage = nextMessages.some(
         (message) => message.info.id === part.messageID,
       )
-      const finalMessages = hasMessage
+      const newMessage: OpenCodeMessageWithParts = {
+        info: {
+          id: part.messageID,
+          sessionID: sessionId,
+          role: "assistant",
+          time: { created: Date.now() },
+        },
+        parts: [part],
+      }
+      const finalMessages: OpenCodeMessageWithParts[] = hasMessage
         ? nextMessages
-        : [
-            ...nextMessages,
-            {
-              info: {
-                id: part.messageID,
-                sessionID: sessionId,
-                role: "assistant",
-                time: { created: Date.now() },
-              },
-              parts: [part],
-            },
-          ]
+        : [...nextMessages, newMessage]
       const toolCalls = extractRecordedToolCalls({
         sessionId,
         messages: finalMessages,
@@ -91,11 +119,9 @@ export const useRecorderStore = create<RecorderState>((set, get) => ({
         toolCallsBySession: { ...state.toolCallsBySession, [sessionId]: toolCalls },
       }))
     }
-    if (payload.type === "message.part.removed") {
-      const info = payload as {
-        properties: { sessionID: string; messageID: string; partID: string }
-      }
-      const { sessionID, messageID, partID } = info.properties
+    const removed = getRemovedPartInfoFromEvent(payload)
+    if (removed) {
+      const { sessionID, messageID, partID } = removed
       const messages = get().messagesBySession[sessionID] ?? []
       const nextMessages = messages.map((message) => {
         if (message.info.id !== messageID) {

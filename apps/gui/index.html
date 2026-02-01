@@ -4,6 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OpenCode Replay</title>
+    <script>
+      ;(() => {
+        try {
+          const raw = window.localStorage.getItem("opencode.themeMode")
+          const mode = raw === "light" || raw === "dark" || raw === "system" ? raw : "system"
+          const resolved =
+            mode === "light" || mode === "dark"
+              ? mode
+              : window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light"
+          document.documentElement.dataset.theme = resolved
+        } catch {
+          // ignore
+        }
+      })()
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

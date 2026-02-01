@@ -40,10 +40,10 @@ export const Sidebar = () => {
   const setNavSection = useAppStore((state) => state.setNavSection)
 
   return (
-    <aside className="flex h-full w-72 flex-col gap-6 border-r border-black/5 bg-white/60 px-6 py-8">
+    <aside className="flex h-full w-72 flex-col gap-6 border-r border-border1/10 bg-surface2/70 px-6 py-8">
       <div className="space-y-1">
-        <p className="font-display text-xl text-ink">OpenCode Replay</p>
-        <p className="text-sm text-black/60">Session capture + MCP playback</p>
+        <p className="font-display text-xl text-text1">OpenCode Replay</p>
+        <p className="text-sm text-text3">Session capture + MCP playback</p>
       </div>
       <nav className="space-y-3">
         {navItems.map((item) => {
@@ -53,10 +53,10 @@ export const Sidebar = () => {
               key={item.id}
               onClick={() => setNavSection(item.id)}
               className={clsx(
-                "flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition",
+                "ui-focus relative flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition duration-ui ease-ease-out",
                 navSection === item.id
-                  ? "bg-ink text-white shadow-panel"
-                  : "bg-white/70 text-ink hover:bg-white",
+                  ? "bg-cobalt/10 text-text1 ring-1 ring-cobalt/20 before:content-[''] before:absolute before:left-0 before:top-3 before:bottom-3 before:w-[2px] before:rounded-r before:bg-cobalt"
+                  : "text-text1 hover:bg-surface1/70",
               )}
             >
               <Icon size={18} />
@@ -65,7 +65,7 @@ export const Sidebar = () => {
                 <p
                   className={clsx(
                     "text-xs",
-                    navSection === item.id ? "text-white/70" : "text-black/50",
+                    navSection === item.id ? "text-text2" : "text-text3",
                   )}
                 >
                   {item.description}
@@ -75,7 +75,7 @@ export const Sidebar = () => {
           )
         })}
       </nav>
-      <div className="mt-auto rounded-2xl bg-white/70 p-4 text-xs text-black/60">
+      <div className="mt-auto rounded-2xl border border-border1/10 bg-surface1/60 p-4 text-xs text-text2">
         Capture tool calls live from OpenCode, then replay them without running a model.
       </div>
     </aside>

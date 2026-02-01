@@ -45,10 +45,10 @@ const App = () => {
   }, [setNavSection, setSelectedSessionId, setSelectedToolCallId])
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen text-text1">
       <Sidebar />
-      <div className="flex flex-1">
-        <main className="flex-1 p-6">
+      <div className="flex min-w-0 flex-1">
+        <main className="min-w-0 flex-1 p-6">
           {navSection === "sessions" && <SessionsView />}
           {navSection === "library" && <LibraryView />}
           {navSection === "mcp" && <McpView />}

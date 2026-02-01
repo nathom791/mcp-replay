@@ -45,7 +45,8 @@ export const ToolCallRequestModal = ({
     if (!isOpen) return
     if (toolCall?.toolKind !== "mcp") return
     if (!draftServer && mcpServers.length > 0) {
-      setDraftServer(mcpServers[0])
+      const firstServer = mcpServers[0]
+      if (firstServer) setDraftServer(firstServer)
     }
   }, [draftServer, isOpen, mcpServers, toolCall?.toolKind])
 
@@ -54,7 +55,8 @@ export const ToolCallRequestModal = ({
     if (!draftToolName) {
       const tools = toolsByServer[draftServer] ?? []
       if (tools.length > 0) {
-        setDraftToolName(tools[0].name)
+        const firstTool = tools[0]
+        if (firstTool) setDraftToolName(firstTool.name)
       }
     }
   }, [draftServer, draftToolName, isOpen, toolsByServer])
@@ -139,11 +141,11 @@ export const ToolCallRequestModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/35 px-4 py-6"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-3xl rounded-3xl border border-black/10 bg-white p-6 shadow-panel"
+        className="overlay-glass w-full max-w-3xl rounded-3xl p-6"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -151,17 +153,17 @@ export const ToolCallRequestModal = ({
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-black/50">Tool request</p>
-            <h2 id="tool-call-modal-title" className="text-lg font-semibold text-ink">
+            <p className="text-xs uppercase tracking-[0.2em] text-text3">Tool request</p>
+            <h2 id="tool-call-modal-title" className="text-lg font-semibold text-text1">
               {toolCall.toolName}
             </h2>
-            <p className="text-xs text-black/50">
+            <p className="text-xs text-text3">
               {toolCall.mcpServerName ?? "builtin"} · {toolCall.status}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="rounded-full border border-black/10 p-2 text-black/50 hover:text-black"
+            className="ui-focus rounded-full border border-border1/10 bg-surface1/40 p-2 text-text2 transition duration-ui ease-ease-out hover:bg-surface1/70 hover:text-text1"
             aria-label="Close"
           >
             <X size={16} />
@@ -169,14 +171,14 @@ export const ToolCallRequestModal = ({
         </div>
 
         {!isEditable && (
-          <div className="mt-4 rounded-2xl border border-amber-200/60 bg-amber-50/70 px-4 py-3 text-xs text-amber-900">
+          <div className="mt-4 rounded-2xl border border-ember/25 bg-ember/10 px-4 py-3 text-xs text-ember">
             This tool call is not an MCP request and cannot be edited.
           </div>
         )}
 
         <div className="mt-6 grid gap-4 md:grid-cols-[1fr_1fr]">
           <div className="flex flex-col gap-1">
-            <label className="text-[0.65rem] uppercase tracking-[0.2em] text-black/40">
+            <label className="text-[0.65rem] uppercase tracking-[0.2em] text-text3">
               Server
             </label>
             <select
@@ -184,7 +186,7 @@ export const ToolCallRequestModal = ({
               onChange={(event) => setDraftServer(event.target.value)}
               disabled={!isEditable}
               className={clsx(
-                "rounded-2xl border border-black/10 bg-white px-3 py-2 text-xs",
+                "ui-focus rounded-2xl border border-border1/10 bg-surface3/80 px-3 py-2 text-xs text-text1",
                 !isEditable && "opacity-60",
               )}
             >
@@ -198,13 +200,13 @@ export const ToolCallRequestModal = ({
               ))}
             </select>
             {mcpServers.length === 0 && (
-              <p className="text-[0.65rem] text-black/45">
+              <p className="text-[0.65rem] text-text3">
                 Connect to OpenCode to load MCP servers.
               </p>
             )}
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-[0.65rem] uppercase tracking-[0.2em] text-black/40">
+            <label className="text-[0.65rem] uppercase tracking-[0.2em] text-text3">
               Tool
             </label>
             <select
@@ -212,7 +214,7 @@ export const ToolCallRequestModal = ({
               onChange={(event) => setDraftToolName(event.target.value)}
               disabled={!isEditable || !draftServer}
               className={clsx(
-                "rounded-2xl border border-black/10 bg-white px-3 py-2 text-xs",
+                "ui-focus rounded-2xl border border-border1/10 bg-surface3/80 px-3 py-2 text-xs text-text1",
                 (!isEditable || !draftServer) && "opacity-60",
               )}
             >
@@ -228,7 +230,7 @@ export const ToolCallRequestModal = ({
               ))}
             </select>
             {draftServer && toolsForServer.length === 0 && (
-              <p className="text-[0.65rem] text-black/45">
+              <p className="text-[0.65rem] text-text3">
                 This server has no tool definitions loaded.
               </p>
             )}
@@ -242,21 +244,21 @@ export const ToolCallRequestModal = ({
             checked={draftDisabled}
             onChange={(event) => setDraftDisabled(event.target.checked)}
             disabled={!isEditable}
-            className="h-4 w-4 rounded border border-black/20 text-ink"
+            className="h-4 w-4 rounded border border-border1/20 accent-cobalt"
           />
-          <label htmlFor="tool-call-disabled" className="text-xs text-black/60">
+          <label htmlFor="tool-call-disabled" className="text-xs text-text2">
             Disable this call during replay
           </label>
         </div>
 
         <div className="mt-5">
           <div className="flex items-center justify-between">
-            <p className="text-xs uppercase tracking-[0.2em] text-black/50">Arguments</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-text3">Arguments</p>
             {parseError && (
-              <span className="text-xs text-[color:var(--ember)]">{parseError}</span>
+              <span className="text-xs text-danger">{parseError}</span>
             )}
           </div>
-          <div className="mt-2 overflow-hidden rounded-2xl border border-black/10 bg-white/80">
+          <div className="mt-2 overflow-hidden rounded-2xl border border-border2/15 bg-surface3/80">
             <Editor
               height="240px"
               defaultLanguage="json"
@@ -273,20 +275,20 @@ export const ToolCallRequestModal = ({
         </div>
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs text-black/45">
+          <p className="text-xs text-text3">
             Changes stay local until you save the session.
           </p>
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="rounded-full border border-black/10 px-4 py-2 text-xs font-semibold text-black/60"
+              className="rounded-full border border-border1/10 bg-surface3/70 px-4 py-2 text-xs font-semibold text-text1 transition duration-ui ease-ease-out hover:bg-surface3"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={!canSave}
-              className="rounded-full bg-ink px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+              className="rounded-full bg-cobalt px-4 py-2 text-xs font-semibold text-white transition duration-ui ease-ease-out hover:bg-cobalt-600 disabled:opacity-60"
             >
               Save request
             </button>

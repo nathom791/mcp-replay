@@ -3,6 +3,7 @@ dist/
 target/
 .turbo/
 .tauri/
+*.tsbuildinfo
 .env
 .env.*
 .DS_Store

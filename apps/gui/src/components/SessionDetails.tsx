@@ -250,9 +250,9 @@ export const SessionDetails = ({
 
   if (!selectedSessionId) {
     return (
-      <section className="panel-bg flex h-full flex-col items-center justify-center rounded-3xl border border-black/5 p-6 text-center shadow-panel">
+      <section className="panel-bg flex h-full flex-col items-center justify-center rounded-3xl p-6 text-center">
         <p className="text-lg font-semibold">Pick a session</p>
-        <p className="mt-2 text-sm text-black/50">
+        <p className="mt-2 text-sm text-text3">
           Select an OpenCode session to view messages and tool calls.
         </p>
       </section>
@@ -261,15 +261,15 @@ export const SessionDetails = ({
 
   if (!session && !sessionsLoading) {
     return (
-      <section className="panel-bg flex h-full flex-col items-center justify-center rounded-3xl border border-black/5 p-6 text-center shadow-panel">
+      <section className="panel-bg flex h-full flex-col items-center justify-center rounded-3xl p-6 text-center">
         <p className="text-lg font-semibold">Session unavailable</p>
-        <p className="mt-2 text-sm text-black/50">
+        <p className="mt-2 text-sm text-text3">
           We couldn&apos;t load this session. It may have been removed or the server
           is unavailable.
         </p>
         <button
           onClick={clearSelection}
-          className="mt-4 rounded-full bg-ink px-4 py-2 text-xs font-semibold text-white"
+          className="mt-4 rounded-full border border-border1/10 bg-surface3/70 px-4 py-2 text-xs font-semibold text-text1 transition duration-ui ease-ease-out hover:bg-surface3"
         >
           Back to sessions
         </button>
@@ -279,14 +279,14 @@ export const SessionDetails = ({
 
   if (messagesError) {
     return (
-      <section className="panel-bg flex h-full flex-col items-center justify-center rounded-3xl border border-black/5 p-6 text-center shadow-panel">
+      <section className="panel-bg flex h-full flex-col items-center justify-center rounded-3xl p-6 text-center">
         <p className="text-lg font-semibold">Session load failed</p>
-        <p className="mt-2 text-sm text-black/50">
+        <p className="mt-2 text-sm text-text3">
           {`Unable to load messages. ${messagesErrorText}`}
         </p>
         <button
           onClick={clearSelection}
-          className="mt-4 rounded-full bg-ink px-4 py-2 text-xs font-semibold text-white"
+          className="mt-4 rounded-full border border-border1/10 bg-surface3/70 px-4 py-2 text-xs font-semibold text-text1 transition duration-ui ease-ease-out hover:bg-surface3"
         >
           Back to sessions
         </button>
@@ -296,10 +296,10 @@ export const SessionDetails = ({
 
   return (
     <section className="flex h-full flex-col gap-4">
-      <div className="panel-bg flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-black/5 p-4 shadow-panel">
+      <div className="panel-bg flex flex-wrap items-center justify-between gap-4 rounded-3xl p-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-black/50">Session</p>
-          <p className="text-lg font-semibold text-ink">{sessionTitle}</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-text3">Session</p>
+          <p className="text-lg font-semibold text-text1">{sessionTitle}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <ReplayControls
@@ -313,21 +313,21 @@ export const SessionDetails = ({
             <button
               onClick={recordSession}
               disabled={!canRecord || isRecording}
-              className="flex items-center gap-2 rounded-full border border-black/10 px-4 py-2 text-xs font-semibold text-black/70 disabled:opacity-60"
+              className="flex items-center gap-2 rounded-full border border-border1/10 bg-surface3/70 px-4 py-2 text-xs font-semibold text-text1 transition duration-ui ease-ease-out hover:bg-surface3 disabled:opacity-60"
             >
               <Download size={14} />
               {isRecording ? "Recording" : "Record session"}
             </button>
             {recordStatus.state === "error" && (
-              <p className="text-xs text-[color:var(--ember)]">
+              <p className="text-xs text-danger">
                 Save failed: {recordStatus.message}
               </p>
             )}
             {recordStatus.state === "saved" && (
-              <p className="text-xs text-[color:var(--moss)]">Saved to library</p>
+              <p className="text-xs text-moss">Saved to library</p>
             )}
             {recordStatus.state === "idle" && recordHint && (
-              <p className="text-xs text-black/50">{recordHint}</p>
+              <p className="text-xs text-text3">{recordHint}</p>
             )}
           </div>
         </div>
@@ -336,19 +336,19 @@ export const SessionDetails = ({
         <ChatTranscript messages={normalizedMessages} />
         <ToolTimeline toolCalls={toolCalls} />
       </div>
-      <div className="panel-bg rounded-3xl border border-black/5 p-4 shadow-panel">
-        <p className="text-xs uppercase tracking-[0.2em] text-black/50">Send message</p>
+      <div className="panel-bg rounded-3xl p-4">
+        <p className="text-xs uppercase tracking-[0.2em] text-text3">Send message</p>
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <textarea
             value={prompt}
             onChange={(event) => setPrompt(event.target.value)}
             rows={2}
-            className="min-w-[240px] flex-1 rounded-2xl border border-black/10 bg-white/80 px-3 py-2 text-sm"
+            className="min-w-[240px] flex-1 rounded-2xl border border-border1/10 bg-surface3/80 px-3 py-2 text-sm text-text1 placeholder:text-text3"
             placeholder="Ask OpenCode to use MCP tools..."
           />
           <button
             onClick={handleSend}
-            className="flex items-center gap-2 rounded-full bg-ink px-4 py-2 text-xs font-semibold text-white"
+            className="flex items-center gap-2 rounded-full bg-cobalt px-4 py-2 text-xs font-semibold text-white transition duration-ui ease-ease-out hover:bg-cobalt-600"
           >
             <Send size={14} />
             Send

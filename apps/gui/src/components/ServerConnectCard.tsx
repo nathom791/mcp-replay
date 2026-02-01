@@ -64,59 +64,59 @@ export const ServerConnectCard = () => {
         : Link2Off
 
   return (
-    <div className="panel-bg rounded-3xl border border-black/5 p-5 shadow-panel">
+    <div className="panel-bg rounded-3xl p-5">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-black/50">
+          <p className="text-xs uppercase tracking-[0.2em] text-text3">
             OpenCode server
           </p>
-          <p className="text-lg font-semibold text-ink">{statusCopy}</p>
+          <p className="text-lg font-semibold text-text1">{statusCopy}</p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-black/50">
+        <div className="flex items-center gap-2 text-xs text-text3">
           <StatusIcon size={16} />
           {serverConfig?.baseUrl ?? formState.baseUrl}
         </div>
       </div>
       <div className="mt-4 grid gap-3 text-sm md:grid-cols-2">
         <label className="flex flex-col gap-1">
-          <span className="text-xs uppercase tracking-wide text-black/50">Base URL</span>
+          <span className="text-xs uppercase tracking-wide text-text3">Base URL</span>
           <input
             value={formState.baseUrl}
             onChange={(event) => handleChange("baseUrl", event.target.value)}
-            className="rounded-2xl border border-black/10 bg-white/80 px-3 py-2"
+            className="rounded-2xl border border-border1/10 bg-surface3/80 px-3 py-2 text-text1 placeholder:text-text3"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-xs uppercase tracking-wide text-black/50">Workspace dir</span>
+          <span className="text-xs uppercase tracking-wide text-text3">Workspace dir</span>
           <input
             value={formState.directory ?? ""}
             onChange={(event) => handleChange("directory", event.target.value)}
-            className="rounded-2xl border border-black/10 bg-white/80 px-3 py-2"
+            className="rounded-2xl border border-border1/10 bg-surface3/80 px-3 py-2 text-text1 placeholder:text-text3"
             placeholder="Optional"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-xs uppercase tracking-wide text-black/50">Username</span>
+          <span className="text-xs uppercase tracking-wide text-text3">Username</span>
           <input
             value={formState.username ?? ""}
             onChange={(event) => handleChange("username", event.target.value)}
-            className="rounded-2xl border border-black/10 bg-white/80 px-3 py-2"
+            className="rounded-2xl border border-border1/10 bg-surface3/80 px-3 py-2 text-text1 placeholder:text-text3"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-xs uppercase tracking-wide text-black/50">Password</span>
+          <span className="text-xs uppercase tracking-wide text-text3">Password</span>
           <input
             value={formState.password ?? ""}
             onChange={(event) => handleChange("password", event.target.value)}
             type="password"
-            className="rounded-2xl border border-black/10 bg-white/80 px-3 py-2"
+            className="rounded-2xl border border-border1/10 bg-surface3/80 px-3 py-2 text-text1 placeholder:text-text3"
           />
         </label>
       </div>
       <div className="mt-4 flex justify-end">
         <button
           onClick={connect}
-          className="rounded-full bg-ink px-5 py-2 text-sm font-semibold text-white"
+          className="rounded-full bg-cobalt px-5 py-2 text-sm font-semibold text-white transition duration-ui ease-ease-out hover:bg-cobalt-600"
         >
           Connect
         </button>
