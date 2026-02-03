@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { Download, Send } from "lucide-react"
+import { Download, FileText, Send } from "lucide-react"
 
 import type {
   OpenCodeMessageWithParts,
@@ -15,8 +15,8 @@ import { useSendMessage, useSessionMessages } from "../hooks/useOpencode"
 import { useAppStore } from "../store/app-store"
 import { useRecorderStore } from "../store/recorder-store"
 import { diffToolResults } from "../lib/replay"
-import { ChatTranscript } from "./ChatTranscript"
 import { ReplayControls } from "./ReplayControls"
+import { TranscriptModal } from "./TranscriptModal"
 import { ToolTimeline } from "./ToolTimeline"
 
 const extractMessageContent = (message: OpenCodeMessageWithParts) => {
@@ -64,6 +64,7 @@ export const SessionDetails = ({
   const [mode, setMode] = useState<ReplayRun["mode"]>("simulated")
   const [isRunning, setIsRunning] = useState(false)
   const [recordStatus, setRecordStatus] = useState<RecordStatus>({ state: "idle" })
+  const [isTranscriptOpen, setIsTranscriptOpen] = useState(false)
   const messagesErrorText = useMemo(() => {
     if (!messagesErrorValue) return "Unknown error"
     if (messagesErrorValue instanceof Error) return messagesErrorValue.message
@@ -86,6 +87,10 @@ export const SessionDetails = ({
 
   useEffect(() => {
     setRecordStatus({ state: "idle" })
+  }, [selectedSessionId])
+
+  useEffect(() => {
+    setIsTranscriptOpen(false)
   }, [selectedSessionId])
 
   useEffect(() => {
@@ -309,6 +314,16 @@ export const SessionDetails = ({
             onStop={stopReplay}
             isRunning={isRunning}
           />
+          <button
+            type="button"
+            onClick={() => setIsTranscriptOpen(true)}
+            className="flex items-center gap-2 rounded-full border border-border1/10 bg-surface3/70 px-4 py-2 text-xs font-semibold text-text1 transition duration-ui ease-ease-out hover:bg-surface3"
+            aria-haspopup="dialog"
+            aria-expanded={isTranscriptOpen}
+          >
+            <FileText size={14} />
+            Transcript
+          </button>
           <div className="flex flex-col items-start gap-1">
             <button
               onClick={recordSession}
@@ -332,8 +347,7 @@ export const SessionDetails = ({
           </div>
         </div>
       </div>
-      <div className="grid flex-1 grid-cols-1 gap-4 xl:grid-cols-[1.2fr_1fr]">
-        <ChatTranscript messages={normalizedMessages} />
+      <div className="flex-1">
         <ToolTimeline toolCalls={toolCalls} />
       </div>
       <div className="panel-bg rounded-3xl p-4">
@@ -355,6 +369,12 @@ export const SessionDetails = ({
           </button>
         </div>
       </div>
+
+      <TranscriptModal
+        isOpen={isTranscriptOpen}
+        messages={normalizedMessages}
+        onClose={() => setIsTranscriptOpen(false)}
+      />
     </section>
   )
 }

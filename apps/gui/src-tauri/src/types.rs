@@ -83,6 +83,22 @@ pub struct RecordedSession {
     pub updated_at: i64,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SessionListParams {
+    pub limit: i64,
+    pub offset: i64,
+    pub search: Option<String>,
+    pub suite_id: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PagedSessions {
+    pub items: Vec<RecordedSession>,
+    pub total: i64,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 #[serde(rename_all = "camelCase")]
 pub struct Suite {

@@ -33,13 +33,22 @@ import {
   X,
 } from "lucide-react"
 
-import type { McpToolDefinition, RecordedToolCall, ReplayRun } from "@opencode/core"
+import type {
+  McpToolDefinition,
+  RecordedSession,
+  RecordedToolCall,
+  ReplayRun,
+} from "@opencode/core"
 import { callMcpTool, listMcpTools } from "@opencode/mcp-client"
 import {
   getRecordedSessionPayload,
   listRecordedSessions,
+  listRecordedSessionsPage,
   saveReplayRun,
 } from "@opencode/storage"
+import { PaginationControls } from "../components/PaginationControls"
+import { SearchInput } from "../components/SearchInput"
+import { useDebouncedValue } from "../hooks/useDebouncedValue"
 import { useMcpConfig } from "../hooks/useMcpConfig"
 import {
   useRecordedSessionPayload,
@@ -84,6 +93,9 @@ type SessionRunStatus = {
 }
 
 const replayModes: ReplayRun["mode"][] = ["simulated", "live", "verify"]
+
+const SESSION_PAGE_SIZE = 15
+const PLAY_ALL_FETCH_PAGE_SIZE = 200
 
 type SortableToolCallRowProps = {
   toolCall: RecordedToolCall
@@ -309,18 +321,67 @@ const DeleteSessionModal = ({
 
 export const LibraryView = () => {
   const queryClient = useQueryClient()
-  const { data: sessions = [] } = useQuery({
-    queryKey: ["recorded-sessions"],
-    queryFn: listRecordedSessions,
-  })
+  const [suiteFilter, setSuiteFilter] = useState<string>("all")
+  const [sessionSearch, setSessionSearch] = useState("")
+  const debouncedSessionSearch = useDebouncedValue(sessionSearch, 200)
+  const normalizedSessionSearch = debouncedSessionSearch.trim()
+  const [sessionPageIndex, setSessionPageIndex] = useState(0)
+  const [selectedSessionId, setSelectedSessionId] = useState<string | undefined>()
+
   const { data: suites = [] } = useSuites()
-  const sessionIds = useMemo(() => sessions.map((session) => session.id), [sessions])
-  const { data: sessionSuites = [] } = useSessionSuites(sessionIds)
+
+  const isUnassignedFilter = suiteFilter === "unassigned"
+  const suiteId =
+    suiteFilter !== "all" && suiteFilter !== "unassigned" ? suiteFilter : undefined
+  const searchParam =
+    normalizedSessionSearch.length > 0 ? normalizedSessionSearch : undefined
+  const offset = sessionPageIndex * SESSION_PAGE_SIZE
+
+  const sessionsPageQuery = useQuery({
+    queryKey: [
+      "recorded-sessions",
+      "page",
+      {
+        suiteId: suiteId ?? null,
+        search: searchParam ?? "",
+        limit: SESSION_PAGE_SIZE,
+        offset,
+      },
+    ],
+    queryFn: () =>
+      listRecordedSessionsPage({
+        suiteId,
+        search: searchParam,
+        limit: SESSION_PAGE_SIZE,
+        offset,
+      }),
+    enabled: !isUnassignedFilter,
+    placeholderData: (previous) => previous,
+  })
+
+  const sessionsAllQuery = useQuery({
+    queryKey: ["recorded-sessions", "all"],
+    queryFn: listRecordedSessions,
+    enabled: isUnassignedFilter,
+  })
+
+  const pageSessions = sessionsPageQuery.data?.items ?? []
+  const sessionsTotal = sessionsPageQuery.data?.total ?? 0
+  const allSessions = sessionsAllQuery.data ?? []
+
+  const sessionIdsForSuites = useMemo(() => {
+    const ids = new Set<string>()
+    const sourceSessions = isUnassignedFilter ? allSessions : pageSessions
+    for (const session of sourceSessions) ids.add(session.id)
+    if (selectedSessionId) ids.add(selectedSessionId)
+    return Array.from(ids).sort()
+  }, [allSessions, isUnassignedFilter, pageSessions, selectedSessionId])
+
+  const { data: sessionSuites = [] } = useSessionSuites(sessionIdsForSuites)
   const { mutateAsync: createSuite, isPending: isCreatingSuite } = useCreateSuite()
   const { mutateAsync: assignSuite, isPending: isAssigningSuite } = useAssignSuite()
   const { mutateAsync: unassignSuite, isPending: isUnassigningSuite } =
     useUnassignSuite()
-  const [selectedSessionId, setSelectedSessionId] = useState<string | undefined>()
   const {
     data: payload,
     isLoading: payloadLoading,
@@ -342,7 +403,6 @@ export const LibraryView = () => {
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(
     null,
   )
-  const [suiteFilter, setSuiteFilter] = useState<string>("all")
   const [newSuiteName, setNewSuiteName] = useState("")
   const [suiteCreateError, setSuiteCreateError] = useState<string | null>(null)
   const [suiteAssignError, setSuiteAssignError] = useState<string | null>(null)
@@ -417,17 +477,39 @@ export const LibraryView = () => {
     return entries
   }, [sessionSuites])
 
-  const filteredSessions = useMemo(() => {
-    if (suiteFilter === "all") return sessions
-    if (suiteFilter === "unassigned") {
-      return sessions.filter(
-        (session) => (sessionSuitesBySessionId[session.id] ?? []).length === 0,
-      )
+  const unassignedSessions = useMemo(() => {
+    if (!isUnassignedFilter) return []
+
+    const searchLower = normalizedSessionSearch.toLowerCase()
+    return allSessions.filter((session) => {
+      const isUnassigned = (sessionSuitesBySessionId[session.id] ?? []).length === 0
+      if (!isUnassigned) return false
+      if (!searchLower) return true
+      const haystack = `${session.title} ${session.source}`.toLowerCase()
+      return haystack.includes(searchLower)
+    })
+  }, [allSessions, isUnassignedFilter, normalizedSessionSearch, sessionSuitesBySessionId])
+
+  const sessionListTotal = isUnassignedFilter ? unassignedSessions.length : sessionsTotal
+  const pageCount = sessionListTotal === 0 ? 0 : Math.ceil(sessionListTotal / SESSION_PAGE_SIZE)
+  const maxPageIndex = Math.max(0, pageCount - 1)
+
+  useEffect(() => {
+    setSessionPageIndex(0)
+  }, [normalizedSessionSearch, suiteFilter])
+
+  useEffect(() => {
+    if (sessionPageIndex > maxPageIndex) setSessionPageIndex(maxPageIndex)
+  }, [maxPageIndex, sessionPageIndex])
+
+  const sessionsForList = useMemo(() => {
+    if (isUnassignedFilter) {
+      const start = sessionPageIndex * SESSION_PAGE_SIZE
+      return unassignedSessions.slice(start, start + SESSION_PAGE_SIZE)
     }
-    return sessions.filter((session) =>
-      (sessionSuitesBySessionId[session.id] ?? []).includes(suiteFilter),
-    )
-  }, [sessions, suiteFilter, sessionSuitesBySessionId])
+
+    return pageSessions
+  }, [isUnassignedFilter, pageSessions, sessionPageIndex, unassignedSessions])
 
   const selectedSessionSuiteIds = useMemo(() => {
     if (!selectedSessionId) return []
@@ -450,13 +532,8 @@ export const LibraryView = () => {
   const isReplayBusy = Boolean(runningSessionId) || isPlayingAll
 
   useEffect(() => {
-    if (!selectedSessionId) return
-    const exists = sessions.some((session) => session.id === selectedSessionId)
-    if (!exists) {
-      setSelectedSessionId(undefined)
-    }
     setSuiteAssignError(null)
-  }, [selectedSessionId, sessions])
+  }, [selectedSessionId])
 
   useEffect(() => {
     setActiveToolCallId(null)
@@ -717,20 +794,49 @@ export const LibraryView = () => {
   }
 
   const handlePlayAll = async () => {
-    if (isReplayBusy || filteredSessions.length === 0) return
-    if (
-      hasEdits &&
-      selectedSessionId &&
-      filteredSessions.some((session) => session.id === selectedSessionId)
-    ) {
+    if (isReplayBusy || sessionListTotal === 0) return
+
+    setReplayError(null)
+
+    let sessionsToPlay: RecordedSession[] = []
+    try {
+      if (isUnassignedFilter) {
+        sessionsToPlay = unassignedSessions
+      } else {
+        const all: RecordedSession[] = []
+        let total = 0
+
+        for (let currentOffset = 0; ; currentOffset += PLAY_ALL_FETCH_PAGE_SIZE) {
+          const page = await listRecordedSessionsPage({
+            limit: PLAY_ALL_FETCH_PAGE_SIZE,
+            offset: currentOffset,
+            search: searchParam,
+            suiteId,
+          })
+
+          if (currentOffset === 0) total = page.total
+          all.push(...page.items)
+
+          if (all.length >= total) break
+        }
+
+        sessionsToPlay = all
+      }
+    } catch (error) {
+      setReplayError(formatError(error))
+      return
+    }
+
+    if (sessionsToPlay.length === 0) return
+
+    if (hasEdits && selectedSessionId && sessionsToPlay.some((s) => s.id === selectedSessionId)) {
       setReplayError("Save or discard changes before replaying sessions.")
       return
     }
 
-    setReplayError(null)
     setIsPlayingAll(true)
     try {
-      for (const session of filteredSessions) {
+      for (const session of sessionsToPlay) {
         setRunningSessionId(session.id)
         setRunStatus(session.id, { state: "running" })
         try {
@@ -890,10 +996,30 @@ export const LibraryView = () => {
     payload && selectedServer && selectedToolName && !selectedToolsLoading,
   )
   const suiteActionBusy = isAssigningSuite || isUnassigningSuite
-  const sessionCountLabel =
-    suiteFilter === "all"
-      ? `${sessions.length} sessions`
-      : `${filteredSessions.length} of ${sessions.length}`
+  const sessionCountLabel = (() => {
+    if (suiteFilter === "unassigned") return `${sessionListTotal} unassigned`
+    if (normalizedSessionSearch.length > 0) return `${sessionListTotal} matches`
+    if (suiteFilter !== "all") {
+      const suiteName = suitesById[suiteFilter]
+      if (suiteName) return `${sessionListTotal} in ${suiteName}`
+    }
+    return `${sessionListTotal} sessions`
+  })()
+
+  const emptySessionMessage: string | null = (() => {
+    if (sessionListTotal > 0) return null
+    if (suiteFilter === "all" && normalizedSessionSearch.length === 0) {
+      return "No recorded sessions yet. Save a session from the Sessions tab."
+    }
+    if (suiteFilter === "unassigned") {
+      return normalizedSessionSearch.length > 0
+        ? "No unassigned sessions match your search."
+        : "No unassigned sessions."
+    }
+    return normalizedSessionSearch.length > 0
+      ? "No sessions match your search."
+      : "No sessions match this suite filter."
+  })()
 
   return (
     <div className="grid h-full grid-cols-1 gap-6 xl:grid-cols-[320px_1fr]">
@@ -921,7 +1047,7 @@ export const LibraryView = () => {
           </div>
           <button
             onClick={handlePlayAll}
-            disabled={isReplayBusy || filteredSessions.length === 0}
+            disabled={isReplayBusy || sessionListTotal === 0}
             className="flex items-center gap-2 rounded-full bg-cobalt px-4 py-2 text-xs font-semibold text-white transition duration-ui ease-ease-out hover:bg-cobalt-600 disabled:opacity-60"
           >
             {isPlayingAll ? (
@@ -1001,8 +1127,14 @@ export const LibraryView = () => {
             <p className="mt-2 text-xs text-danger">{suiteCreateError}</p>
           )}
         </div>
-        <div className="mt-4 flex-1 space-y-2 overflow-y-auto pr-1">
-          {filteredSessions.map((session) => {
+        <SearchInput
+          value={sessionSearch}
+          onValueChange={setSessionSearch}
+          placeholder="Search recorded sessions"
+          className="mt-4"
+        />
+        <div className="mt-3 flex-1 space-y-2 overflow-y-auto pr-1">
+          {sessionsForList.map((session) => {
             const suiteNames = (sessionSuitesBySessionId[session.id] ?? [])
               .map((suiteId) => suitesById[suiteId])
               .filter((name): name is string => Boolean(name))
@@ -1146,17 +1278,19 @@ export const LibraryView = () => {
               </div>
             )
           })}
-          {sessions.length === 0 && (
+          {emptySessionMessage && (
             <div className="rounded-2xl border border-dashed border-border1/15 bg-surface1/40 px-3 py-4 text-xs text-text3">
-              No recorded sessions yet. Save a session from the Sessions tab.
-            </div>
-          )}
-          {sessions.length > 0 && filteredSessions.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-border1/15 bg-surface1/40 px-3 py-4 text-xs text-text3">
-              No sessions match this suite filter.
+              {emptySessionMessage}
             </div>
           )}
         </div>
+        <PaginationControls
+          pageIndex={sessionPageIndex}
+          pageSize={SESSION_PAGE_SIZE}
+          total={sessionListTotal}
+          onPageIndexChange={setSessionPageIndex}
+          className="mt-3"
+        />
       </section>
 
       <section className="panel-bg flex h-full flex-col gap-4 rounded-3xl p-6">

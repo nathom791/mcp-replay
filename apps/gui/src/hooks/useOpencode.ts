@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import type {
   OpenCodeMessageWithParts,
@@ -39,9 +39,15 @@ export const useSessionMessages = (sessionId?: string) =>
   })
 
 export const useCreateSession = () =>
-  useMutation({
-    mutationFn: (title?: string) => createSession(title),
-  })
+  {
+    const queryClient = useQueryClient()
+    return useMutation({
+      mutationFn: (title?: string) => createSession(title),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["sessions"] })
+      },
+    })
+  }
 
 export const useSendMessage = () =>
   useMutation({

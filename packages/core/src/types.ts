@@ -230,6 +230,18 @@ export type RecordedSession = {
   updatedAt: number
 }
 
+export type PagedResult<T> = {
+  items: T[]
+  total: number
+}
+
+export type SessionListParams = {
+  limit: number
+  offset: number
+  search?: string
+  suiteId?: string
+}
+
 export type RecordedSessionPayload = {
   session: RecordedSession
   messages: RecordedMessage[]

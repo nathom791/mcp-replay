@@ -1,4 +1,5 @@
 import clsx from "clsx"
+import type { ReactNode } from "react"
 
 import type { OpenCodeMessageWithParts } from "@opencode/core"
 
@@ -16,13 +17,25 @@ const extractText = (message: OpenCodeMessageWithParts) => {
 
 export const ChatTranscript = ({
   messages,
+  className,
+  headerRight,
+  variant = "panel",
 }: {
   messages: OpenCodeMessageWithParts[]
+  className?: string
+  headerRight?: ReactNode
+  variant?: "panel" | "overlay"
 }) => (
-  <section className="panel-bg flex h-full flex-col rounded-3xl p-4">
+  <section
+    className={clsx(
+      variant === "overlay" ? "overlay-glass" : "panel-bg",
+      "flex h-full flex-col rounded-3xl p-4",
+      className,
+    )}
+  >
     <div className="flex items-center justify-between">
       <p className="text-sm font-semibold">Transcript</p>
-      <span className="text-xs text-text3">Live snapshot</span>
+      {headerRight ?? <span className="text-xs text-text3">Live snapshot</span>}
     </div>
     <div className="mt-4 flex-1 space-y-3 overflow-y-auto pr-1">
       {messages.map((message) => (

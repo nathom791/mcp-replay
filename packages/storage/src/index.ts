@@ -1,10 +1,12 @@
 import { invoke } from "@tauri-apps/api/core"
 
 import type {
+  PagedResult,
   RecordedMessage,
   RecordedSession,
   RecordedToolCall,
   RecordedSessionPayload,
+  SessionListParams,
   SessionSuite,
   Suite,
   ReplayRun,
@@ -12,6 +14,9 @@ import type {
 
 export const listRecordedSessions = async () =>
   invoke<RecordedSession[]>("storage_list_sessions")
+
+export const listRecordedSessionsPage = async (params: SessionListParams) =>
+  invoke<PagedResult<RecordedSession>>("storage_list_sessions_page", { params })
 
 export const listSuites = async () => invoke<Suite[]>("storage_list_suites")
 

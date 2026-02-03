@@ -132,6 +132,7 @@ fn main() {
             mcp::mcp_list_tools,
             mcp::mcp_call_tool,
             storage::storage_list_sessions,
+            storage::storage_list_sessions_page,
             storage::storage_list_suites,
             storage::storage_create_suite,
             storage::storage_delete_suite,

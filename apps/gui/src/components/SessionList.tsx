@@ -1,15 +1,54 @@
+import { useEffect, useMemo, useState } from "react"
 import clsx from "clsx"
 import { Plus } from "lucide-react"
 
+import { PaginationControls } from "./PaginationControls"
+import { SearchInput } from "./SearchInput"
 import { useCreateSession, useSessions } from "../hooks/useOpencode"
+import { useDebouncedValue } from "../hooks/useDebouncedValue"
 import { useAppStore } from "../store/app-store"
 import { formatRelativeTime } from "../lib/format"
+
+const SESSION_PAGE_SIZE = 15
 
 export const SessionList = () => {
   const { data: sessions = [] } = useSessions()
   const selectedSessionId = useAppStore((state) => state.selectedSessionId)
   const setSelectedSessionId = useAppStore((state) => state.setSelectedSessionId)
   const { mutateAsync: createSession } = useCreateSession()
+  const [search, setSearch] = useState("")
+  const debouncedSearch = useDebouncedValue(search, 200)
+  const normalizedSearch = debouncedSearch.trim().toLowerCase()
+  const [pageIndex, setPageIndex] = useState(0)
+
+  useEffect(() => {
+    setPageIndex(0)
+  }, [normalizedSearch])
+
+  const filteredSessions = useMemo(() => {
+    if (!normalizedSearch) return sessions
+
+    return sessions.filter((session) => {
+      const title = session.title ?? ""
+      return (
+        title.toLowerCase().includes(normalizedSearch) ||
+        session.id.toLowerCase().includes(normalizedSearch)
+      )
+    })
+  }, [sessions, normalizedSearch])
+
+  const total = filteredSessions.length
+  const pageCount = total === 0 ? 0 : Math.ceil(total / SESSION_PAGE_SIZE)
+  const maxPageIndex = Math.max(0, pageCount - 1)
+
+  useEffect(() => {
+    if (pageIndex > maxPageIndex) setPageIndex(maxPageIndex)
+  }, [pageIndex, maxPageIndex])
+
+  const pageSessions = useMemo(() => {
+    const start = pageIndex * SESSION_PAGE_SIZE
+    return filteredSessions.slice(start, start + SESSION_PAGE_SIZE)
+  }, [filteredSessions, pageIndex])
 
   const handleCreate = async () => {
     const session = await createSession(undefined)
@@ -28,8 +67,14 @@ export const SessionList = () => {
           New
         </button>
       </div>
-      <div className="mt-4 flex-1 space-y-2 overflow-y-auto pr-1">
-        {sessions.map((session) => (
+      <SearchInput
+        value={search}
+        onValueChange={setSearch}
+        placeholder="Search sessions"
+        className="mt-3"
+      />
+      <div className="mt-3 flex-1 space-y-2 overflow-y-auto pr-1">
+        {pageSessions.map((session) => (
           <button
             key={session.id}
             onClick={() => setSelectedSessionId(session.id)}
@@ -58,7 +103,19 @@ export const SessionList = () => {
             No sessions yet. Create one to start recording.
           </div>
         )}
+        {sessions.length > 0 && total === 0 && (
+          <div className="rounded-2xl border border-dashed border-border1/15 bg-surface1/40 px-3 py-4 text-xs text-text3">
+            No sessions match your search.
+          </div>
+        )}
       </div>
+      <PaginationControls
+        pageIndex={pageIndex}
+        pageSize={SESSION_PAGE_SIZE}
+        total={total}
+        onPageIndexChange={setPageIndex}
+        className="mt-3"
+      />
     </section>
   )
 }

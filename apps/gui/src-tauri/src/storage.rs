@@ -10,9 +10,10 @@ use uuid::Uuid;
 
 use crate::state::AppState;
 use crate::types::{
-    McpToolResult, RecordedMessage, RecordedSession, RecordedSessionDuplicateRequest,
-    RecordedSessionPayload, RecordedToolCall, RecordedToolCallRequestUpdate, ReplayRun,
-    ReplayRunToolCall, SessionSuite, Suite,
+    McpToolResult, PagedSessions, RecordedMessage, RecordedSession,
+    RecordedSessionDuplicateRequest, RecordedSessionPayload, RecordedToolCall,
+    RecordedToolCallRequestUpdate, ReplayRun, ReplayRunToolCall, SessionListParams,
+    SessionSuite, Suite,
 };
 
 #[derive(Clone)]
@@ -95,6 +96,91 @@ impl Storage {
         .map_err(|error| error.to_string())?;
 
         Ok(sessions)
+    }
+
+    pub async fn list_sessions_page(
+        &self,
+        params: SessionListParams,
+    ) -> Result<PagedSessions, String> {
+        let SessionListParams {
+            limit,
+            offset,
+            search,
+            suite_id,
+        } = params;
+
+        if limit < 0 {
+            return Err("Limit must be non-negative".to_string());
+        }
+        if offset < 0 {
+            return Err("Offset must be non-negative".to_string());
+        }
+
+        let search_pattern = search
+            .as_deref()
+            .map(str::trim)
+            .filter(|value| !value.is_empty())
+            .map(|value| format!("%{}%", value.to_lowercase()));
+        let suite_id = suite_id.as_deref();
+
+        let mut builder = QueryBuilder::<sqlx::Sqlite>::new(
+            "SELECT recorded_sessions.id, recorded_sessions.opencode_session_id, \
+             recorded_sessions.title, recorded_sessions.source, recorded_sessions.created_at, \
+             recorded_sessions.updated_at FROM recorded_sessions",
+        );
+        if suite_id.is_some() {
+            builder.push(" INNER JOIN session_tags ON session_tags.session_id = recorded_sessions.id");
+        }
+        builder.push(" WHERE 1=1");
+        if let Some(suite_id) = suite_id {
+            builder.push(" AND session_tags.tag_id = ");
+            builder.push_bind(suite_id);
+        }
+        if let Some(pattern) = &search_pattern {
+            builder.push(" AND (LOWER(recorded_sessions.title) LIKE ");
+            builder.push_bind(pattern);
+            builder.push(" OR LOWER(recorded_sessions.source) LIKE ");
+            builder.push_bind(pattern);
+            builder.push(")");
+        }
+        builder.push(" ORDER BY recorded_sessions.updated_at DESC LIMIT ");
+        builder.push_bind(limit);
+        builder.push(" OFFSET ");
+        builder.push_bind(offset);
+
+        let items = builder
+            .build_query_as::<RecordedSession>()
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|error| error.to_string())?;
+
+        let mut count_builder = QueryBuilder::<sqlx::Sqlite>::new(
+            "SELECT COUNT(*) FROM recorded_sessions",
+        );
+        if suite_id.is_some() {
+            count_builder
+                .push(" INNER JOIN session_tags ON session_tags.session_id = recorded_sessions.id");
+        }
+        count_builder.push(" WHERE 1=1");
+        if let Some(suite_id) = suite_id {
+            count_builder.push(" AND session_tags.tag_id = ");
+            count_builder.push_bind(suite_id);
+        }
+        if let Some(pattern) = &search_pattern {
+            count_builder.push(" AND (LOWER(recorded_sessions.title) LIKE ");
+            count_builder.push_bind(pattern);
+            count_builder.push(" OR LOWER(recorded_sessions.source) LIKE ");
+            count_builder.push_bind(pattern);
+            count_builder.push(")");
+        }
+
+        let total = count_builder
+            .build_query_scalar::<i64>()
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|error| error.to_string())?;
+
+        Ok(PagedSessions { items, total })
     }
 
     pub async fn list_suites(&self) -> Result<Vec<Suite>, String> {
@@ -615,7 +701,7 @@ impl Storage {
 
         for row in tool_call_rows {
             let RecordedToolCallRow {
-                id: old_tool_call_id,
+                id: _old_tool_call_id,
                 message_id,
                 part_id,
                 sequence_index,
@@ -1113,6 +1199,14 @@ pub async fn storage_list_sessions(
     state: State<'_, AppState>,
 ) -> Result<Vec<RecordedSession>, String> {
     state.storage.list_sessions().await
+}
+
+#[tauri::command]
+pub async fn storage_list_sessions_page(
+    state: State<'_, AppState>,
+    params: SessionListParams,
+) -> Result<PagedSessions, String> {
+    state.storage.list_sessions_page(params).await
 }
 
 #[tauri::command]

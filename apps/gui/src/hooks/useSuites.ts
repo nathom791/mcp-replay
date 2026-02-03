@@ -56,6 +56,7 @@ export const useAssignSuite = () => {
     }) => assignSuite(sessionId, suiteId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["session-suites"], exact: false })
+      queryClient.invalidateQueries({ queryKey: ["recorded-sessions"], exact: false })
     },
   })
 }
@@ -72,6 +73,7 @@ export const useUnassignSuite = () => {
     }) => unassignSuite(sessionId, suiteId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["session-suites"], exact: false })
+      queryClient.invalidateQueries({ queryKey: ["recorded-sessions"], exact: false })
     },
   })
 }
