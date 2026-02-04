@@ -1144,6 +1144,7 @@ export const LibraryView = () => {
             const isDeleting = deletingSessionId === session.id
             const deleteDisabled =
               isReplayBusy || Boolean(copyingSessionId) || Boolean(deletingSessionId)
+            const isSelected = selectedSessionId === session.id
 
             return (
               <div
@@ -1159,20 +1160,20 @@ export const LibraryView = () => {
                 }}
                 className={clsx(
                   "ui-focus relative flex w-full flex-col gap-2 rounded-2xl border px-3 py-2 text-left transition duration-ui ease-ease-out",
-                  selectedSessionId === session.id
+                  isSelected
                     ? "border-cobalt/30 bg-cobalt/10 pl-4 ring-1 ring-cobalt/20 before:content-[''] before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[2px] before:rounded-r before:bg-cobalt"
                     : "border-border1/10 bg-surface1/65 hover:bg-surface1/90",
                 )}
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1">
+                <div className="flex flex-wrap items-start gap-3">
+                  <div className="min-w-0 flex-1">
                     <span className="text-sm font-semibold">
                       {session.title || "Untitled session"}
                     </span>
                     <span
                       className={clsx(
                         "mt-1 block text-xs",
-                        selectedSessionId === session.id
+                        isSelected
                           ? "text-text2"
                           : "text-text3",
                       )}
@@ -1180,13 +1181,19 @@ export const LibraryView = () => {
                       Recorded {formatRelativeTime(session.updatedAt)}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div
+                    className={clsx(
+                      "flex min-w-0 flex-wrap items-center gap-2",
+                      isSelected ? "ml-auto justify-end" : "basis-full justify-end pt-1",
+                    )}
+                  >
                     <button
                       onClick={(event) => {
                         event.stopPropagation()
                         handlePlaySession(session.id)
                       }}
                       disabled={isReplayBusy}
+                      aria-label="Play session"
                       className={clsx(
                         "ui-focus flex items-center gap-1 rounded-full border border-border1/10 bg-surface1/40 px-3 py-1 text-xs font-semibold text-text2 transition duration-ui ease-ease-out hover:bg-surface1/70 hover:text-text1",
                         isReplayBusy && "opacity-60",
@@ -1205,6 +1212,7 @@ export const LibraryView = () => {
                         handleCopySession(session.id)
                       }}
                       disabled={Boolean(copyingSessionId)}
+                      aria-label="Copy session"
                       className={clsx(
                         "ui-focus flex items-center gap-1 rounded-full border border-border1/10 bg-surface1/40 px-3 py-1 text-xs font-semibold text-text2 transition duration-ui ease-ease-out hover:bg-surface1/70 hover:text-text1",
                         Boolean(copyingSessionId) && "opacity-60",
@@ -1226,6 +1234,7 @@ export const LibraryView = () => {
                         )
                       }}
                       disabled={deleteDisabled}
+                      aria-label="Delete session"
                       className={clsx(
                         "ui-focus flex items-center gap-1 rounded-full border border-border1/10 bg-surface1/40 px-3 py-1 text-xs font-semibold text-danger transition duration-ui ease-ease-out hover:bg-danger/10",
                         deleteDisabled && "opacity-60",
@@ -1257,7 +1266,7 @@ export const LibraryView = () => {
                     className={clsx(
                       "text-xs",
                       runStatus.state === "running"
-                        ? selectedSessionId === session.id
+                        ? isSelected
                           ? "text-text2"
                           : "text-text3"
                         : runStatus.state === "error"
