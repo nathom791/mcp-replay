@@ -93,9 +93,7 @@ fn main() {
     #[cfg(target_os = "linux")]
     configure_linux_rendering();
 
-    tracing_subscriber::fmt()
-        .with_env_filter("info")
-        .init();
+    tracing_subscriber::fmt().with_env_filter("info").init();
 
     tauri::Builder::default()
         .menu(build_menu)
@@ -105,14 +103,13 @@ fn main() {
             }
         })
         .setup(|app| {
-            let storage = tauri::async_runtime::block_on(storage::Storage::new(&app.handle()))
-                .map_err(|error| std::io::Error::new(std::io::ErrorKind::Other, error))?;
+            let storage = tauri::async_runtime::block_on(storage::Storage::new(app.handle()))
+                .map_err(std::io::Error::other)?;
             let state = AppState {
                 server_config: std::sync::Arc::new(tokio::sync::RwLock::new(None)),
                 storage,
                 mcp_manager: mcp::McpManager::new(),
                 event_stream: std::sync::Arc::new(tokio::sync::Mutex::new(None)),
-                opencode_process: std::sync::Arc::new(tokio::sync::Mutex::new(None)),
             };
             app.manage(state);
             Ok(())

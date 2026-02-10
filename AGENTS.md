@@ -18,13 +18,18 @@
 
 ## Build / lint / test commands (current)
 - Install deps: `pnpm install`
+- Workspace lint (TS): `pnpm lint`
+- Workspace typecheck (TS): `pnpm typecheck`
+- Full local quality gate: `pnpm check`
 - Frontend dev server: `pnpm --filter @opencode/gui dev`
 - Frontend build: `pnpm --filter @opencode/gui build`
 - Frontend preview: `pnpm --filter @opencode/gui preview`
 - Frontend typecheck: `pnpm --filter @opencode/gui typecheck`
 - Tauri dev app: `cargo tauri dev` (run from `apps/gui/src-tauri`)
 - Tauri build: `cargo tauri build` (run from `apps/gui/src-tauri`)
-- Rust tests: `cargo test` (run from `apps/gui/src-tauri`)
+- Rust format check: `pnpm check:rust:fmt`
+- Rust lint: `pnpm check:rust:clippy`
+- Rust tests: `pnpm check:rust:test`
 - If you need to run tooling, check with the user or add scripts with the scaffolding.
 
 ## Expected commands once scaffolding exists (verify before use)
@@ -35,19 +40,20 @@
 
 ### Frontend (Vite + React + TypeScript)
 - Install deps: `pnpm install`
+- Lint: `pnpm lint`
 - Dev server: `pnpm --filter @opencode/gui dev`
 - Production build: `pnpm --filter @opencode/gui build`
 - Preview build: `pnpm --filter @opencode/gui preview`
-- Typecheck: `pnpm --filter @opencode/gui typecheck`
+- Typecheck: `pnpm typecheck`
 
 ### Desktop shell (Tauri v2 + Rust)
 - Dev app: `cargo tauri dev` (run from `apps/gui/src-tauri`)
 - Build app: `cargo tauri build` (run from `apps/gui/src-tauri`)
-- Rust tests: `cargo test` (run from `apps/gui/src-tauri`)
+- Rust tests: `pnpm check:rust:test`
 - Single unit test: `cargo test test_name`
 - Single integration test: `cargo test --test integration_name`
-- Format: `cargo fmt`
-- Lint: `cargo clippy --all-targets --all-features`
+- Format: `pnpm check:rust:fmt`
+- Lint: `pnpm check:rust:clippy`
 
 ### Backend/shared Rust crates (if extracted)
 - Build: `cargo build`

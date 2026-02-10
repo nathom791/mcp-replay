@@ -44,7 +44,7 @@ impl McpManager {
             .get(server_name)
             .cloned()
             .ok_or_else(|| format!("Missing MCP config for {server_name}"))?;
-        let client = McpClient::new(server_name.to_string(), config).await?;
+        let client = McpClient::new(config).await?;
         let client = Arc::new(client);
         self.clients
             .lock()
@@ -85,7 +85,6 @@ pub async fn mcp_call_tool(
 
 #[derive(Clone)]
 pub struct McpClient {
-    server_name: String,
     transport: McpTransport,
     request_id: Arc<AtomicU64>,
     protocol_version: Arc<RwLock<String>>,
@@ -93,7 +92,7 @@ pub struct McpClient {
 }
 
 impl McpClient {
-    pub async fn new(server_name: String, config: McpServerConfig) -> Result<Self, String> {
+    pub async fn new(config: McpServerConfig) -> Result<Self, String> {
         let timeout = Duration::from_millis(match &config {
             McpServerConfig::Local(local) => local.timeout.unwrap_or(5000),
             McpServerConfig::Remote(remote) => remote.timeout.unwrap_or(5000),
@@ -107,7 +106,6 @@ impl McpClient {
             }
         };
         let client = Self {
-            server_name,
             transport,
             request_id: Arc::new(AtomicU64::new(1)),
             protocol_version: Arc::new(RwLock::new(PROTOCOL_VERSION.to_string())),
@@ -159,7 +157,10 @@ impl McpClient {
         });
         let response = self
             .transport
-            .send(payload, Some((id, self.timeout, self.protocol_version.clone())))
+            .send(
+                payload,
+                Some((id, self.timeout, self.protocol_version.clone())),
+            )
             .await?;
         if let Some(result) = response.get("result") {
             return Ok(result.clone());
@@ -372,10 +373,7 @@ impl HttpTransport {
             builder = builder.header("MCP-Protocol-Version", version.read().await.as_str());
         }
 
-        let response = builder
-            .send()
-            .await
-            .map_err(|error| error.to_string())?;
+        let response = builder.send().await.map_err(|error| error.to_string())?;
         if let Some(session_id) = response
             .headers()
             .get("MCP-Session-Id")

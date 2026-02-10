@@ -1,7 +1,28 @@
 {
   "name": "mcp-replay",
   "private": true,
+  "scripts": {
+    "lint": "eslint --max-warnings=0 \"apps/gui/src/**/*.{ts,tsx}\" \"packages/*/src/**/*.ts\"",
+    "typecheck": "pnpm --filter @opencode/gui typecheck",
+    "check:rust:fmt": "cargo fmt --manifest-path apps/gui/src-tauri/Cargo.toml --all -- --check",
+    "check:rust:clippy": "cargo clippy --manifest-path apps/gui/src-tauri/Cargo.toml --all-targets --all-features -- -D warnings",
+    "check:rust:test": "cargo test --manifest-path apps/gui/src-tauri/Cargo.toml",
+    "check:rust": "pnpm run check:rust:fmt && pnpm run check:rust:clippy && pnpm run check:rust:test",
+    "check": "pnpm run lint && pnpm run typecheck && pnpm run check:rust"
+  },
+  "engines": {
+    "node": ">=20 <21",
+    "pnpm": "9.12.3"
+  },
   "packageManager": "pnpm@9.12.3",
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^15.15.0",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.25.0"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"

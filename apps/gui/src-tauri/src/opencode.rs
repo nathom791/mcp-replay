@@ -10,9 +10,7 @@ use tauri::{AppHandle, Emitter, State};
 use tokio::time::sleep;
 
 use crate::state::{AppState, EventStreamHandle};
-use crate::types::{
-    McpServerConfig, OpenCodeMessageWithParts, OpenCodeSession, ServerConfig,
-};
+use crate::types::{McpServerConfig, OpenCodeMessageWithParts, OpenCodeSession, ServerConfig};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct HealthResponse {
@@ -32,7 +30,10 @@ fn build_client(config: &ServerConfig) -> Result<(Client, Url), String> {
 fn apply_auth(config: &ServerConfig, request: reqwest::RequestBuilder) -> reqwest::RequestBuilder {
     match (&config.username, &config.password) {
         (_, Some(password)) => request.basic_auth(
-            config.username.clone().unwrap_or_else(|| "opencode".to_string()),
+            config
+                .username
+                .clone()
+                .unwrap_or_else(|| "opencode".to_string()),
             Some(password.clone()),
         ),
         _ => request,
@@ -116,7 +117,7 @@ pub async fn opencode_health(state: State<'_, AppState>) -> Result<HealthRespons
         .clone()
         .ok_or_else(|| "Server config missing".to_string())?;
     let response = opencode_get(&config, "/global/health", session_query(&config)).await?;
-    Ok(serde_json::from_value(response).map_err(|error| error.to_string())?)
+    serde_json::from_value(response).map_err(|error| error.to_string())
 }
 
 #[tauri::command]
@@ -238,7 +239,9 @@ pub async fn opencode_start_event_stream(
             }
             let mut request = apply_auth(
                 &config,
-                client.get(url.clone()).header("Accept", "text/event-stream"),
+                client
+                    .get(url.clone())
+                    .header("Accept", "text/event-stream"),
             );
             if let Some(event_id) = &last_event_id {
                 request = request.header("Last-Event-ID", event_id);
@@ -262,8 +265,8 @@ pub async fn opencode_start_event_stream(
                         if !event.id.is_empty() {
                             last_event_id = Some(event.id.clone());
                         }
-                        let payload: Value = serde_json::from_str(&event.data)
-                            .unwrap_or_else(|_| Value::String(event.data));
+                        let payload: Value =
+                            serde_json::from_str(&event.data).unwrap_or(Value::String(event.data));
                         let _ = app_handle.emit("opencode:event", payload);
                     }
                     Ok(Event::Open) => {

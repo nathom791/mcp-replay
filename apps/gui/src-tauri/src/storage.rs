@@ -1,8 +1,8 @@
+use serde::de::DeserializeOwned;
 use sqlx::{
     sqlite::{SqliteConnectOptions, SqlitePoolOptions},
     QueryBuilder, SqlitePool,
 };
-use serde::de::DeserializeOwned;
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::{AppHandle, Manager, State};
@@ -12,8 +12,8 @@ use crate::state::AppState;
 use crate::types::{
     McpToolResult, PagedSessions, RecordedMessage, RecordedSession,
     RecordedSessionDuplicateRequest, RecordedSessionPayload, RecordedToolCall,
-    RecordedToolCallRequestUpdate, ReplayRun, ReplayRunToolCall, SessionListParams,
-    SessionSuite, Suite,
+    RecordedToolCallRequestUpdate, ReplayRun, ReplayRunToolCall, SessionListParams, SessionSuite,
+    Suite,
 };
 
 #[derive(Clone)]
@@ -129,7 +129,8 @@ impl Storage {
              recorded_sessions.updated_at FROM recorded_sessions",
         );
         if suite_id.is_some() {
-            builder.push(" INNER JOIN session_tags ON session_tags.session_id = recorded_sessions.id");
+            builder
+                .push(" INNER JOIN session_tags ON session_tags.session_id = recorded_sessions.id");
         }
         builder.push(" WHERE 1=1");
         if let Some(suite_id) = suite_id {
@@ -154,9 +155,8 @@ impl Storage {
             .await
             .map_err(|error| error.to_string())?;
 
-        let mut count_builder = QueryBuilder::<sqlx::Sqlite>::new(
-            "SELECT COUNT(*) FROM recorded_sessions",
-        );
+        let mut count_builder =
+            QueryBuilder::<sqlx::Sqlite>::new("SELECT COUNT(*) FROM recorded_sessions");
         if suite_id.is_some() {
             count_builder
                 .push(" INNER JOIN session_tags ON session_tags.session_id = recorded_sessions.id");
@@ -227,11 +227,7 @@ impl Storage {
     }
 
     pub async fn delete_suite(&self, suite_id: String) -> Result<(), String> {
-        let mut transaction = self
-            .pool
-            .begin()
-            .await
-            .map_err(|error| error.to_string())?;
+        let mut transaction = self.pool.begin().await.map_err(|error| error.to_string())?;
 
         sqlx::query(
             r#"
@@ -284,11 +280,7 @@ impl Storage {
         Ok(())
     }
 
-    pub async fn unassign_suite(
-        &self,
-        session_id: String,
-        suite_id: String,
-    ) -> Result<(), String> {
+    pub async fn unassign_suite(&self, session_id: String, suite_id: String) -> Result<(), String> {
         sqlx::query(
             r#"
             DELETE FROM session_tags
@@ -441,11 +433,7 @@ impl Storage {
         &self,
         payload: RecordedSessionPayload,
     ) -> Result<RecordedSession, String> {
-        let mut transaction = self
-            .pool
-            .begin()
-            .await
-            .map_err(|error| error.to_string())?;
+        let mut transaction = self.pool.begin().await.map_err(|error| error.to_string())?;
 
         sqlx::query(
             r#"
@@ -565,11 +553,7 @@ impl Storage {
         &self,
         request: RecordedSessionDuplicateRequest,
     ) -> Result<RecordedSession, String> {
-        let mut transaction = self
-            .pool
-            .begin()
-            .await
-            .map_err(|error| error.to_string())?;
+        let mut transaction = self.pool.begin().await.map_err(|error| error.to_string())?;
 
         let source = sqlx::query_as::<_, RecordedSession>(
             r#"
@@ -730,8 +714,8 @@ impl Storage {
             let diff_value: Option<serde_json::Value> = parse_json_optional(diff_json)?;
             let timing_value: Option<serde_json::Value> = parse_json_optional(timing_json)?;
 
-            let arguments_json = serde_json::to_string(&arguments_json_value)
-                .map_err(|error| error.to_string())?;
+            let arguments_json =
+                serde_json::to_string(&arguments_json_value).map_err(|error| error.to_string())?;
             let recorded_result_json = serialize_json(&recorded_result_value)?;
             let live_result_json = serialize_json(&live_result_value)?;
             let diff_json = serialize_json(&diff_value)?;
@@ -791,11 +775,7 @@ impl Storage {
     }
 
     pub async fn delete_session(&self, session_id: String) -> Result<(), String> {
-        let mut transaction = self
-            .pool
-            .begin()
-            .await
-            .map_err(|error| error.to_string())?;
+        let mut transaction = self.pool.begin().await.map_err(|error| error.to_string())?;
 
         sqlx::query(
             r#"
@@ -884,11 +864,7 @@ impl Storage {
         session_id: String,
         tool_calls: Vec<RecordedToolCall>,
     ) -> Result<(), String> {
-        let mut transaction = self
-            .pool
-            .begin()
-            .await
-            .map_err(|error| error.to_string())?;
+        let mut transaction = self.pool.begin().await.map_err(|error| error.to_string())?;
 
         let session = sqlx::query_as::<_, RecordedSession>(
             r#"
@@ -1001,11 +977,7 @@ impl Storage {
             disabled,
         } = update;
 
-        let mut transaction = self
-            .pool
-            .begin()
-            .await
-            .map_err(|error| error.to_string())?;
+        let mut transaction = self.pool.begin().await.map_err(|error| error.to_string())?;
 
         let existing = sqlx::query_as::<_, RecordedToolCallUpdateRow>(
             r#"
@@ -1025,8 +997,8 @@ impl Storage {
             return Err("Tool call is not an MCP request".to_string());
         }
 
-        let arguments_json = serde_json::to_string(&arguments_json)
-            .map_err(|error| error.to_string())?;
+        let arguments_json =
+            serde_json::to_string(&arguments_json).map_err(|error| error.to_string())?;
         let status = status.unwrap_or(existing.status);
         let disabled = disabled.unwrap_or(existing.disabled != 0);
 
@@ -1074,11 +1046,7 @@ impl Storage {
     }
 
     pub async fn save_replay_run(&self, run: ReplayRun) -> Result<(), String> {
-        let mut transaction = self
-            .pool
-            .begin()
-            .await
-            .map_err(|error| error.to_string())?;
+        let mut transaction = self.pool.begin().await.map_err(|error| error.to_string())?;
 
         sqlx::query(
             r#"
@@ -1236,10 +1204,7 @@ pub async fn storage_assign_suite(
     session_id: String,
     suite_id: String,
 ) -> Result<(), String> {
-    state
-        .storage
-        .assign_suite(session_id, suite_id)
-        .await
+    state.storage.assign_suite(session_id, suite_id).await
 }
 
 #[tauri::command]
@@ -1248,10 +1213,7 @@ pub async fn storage_unassign_suite(
     session_id: String,
     suite_id: String,
 ) -> Result<(), String> {
-    state
-        .storage
-        .unassign_suite(session_id, suite_id)
-        .await
+    state.storage.unassign_suite(session_id, suite_id).await
 }
 
 #[tauri::command]
@@ -1300,7 +1262,10 @@ pub async fn storage_replace_tool_calls(
     session_id: String,
     tool_calls: Vec<RecordedToolCall>,
 ) -> Result<(), String> {
-    state.storage.replace_session_tool_calls(session_id, tool_calls).await
+    state
+        .storage
+        .replace_session_tool_calls(session_id, tool_calls)
+        .await
 }
 
 #[tauri::command]
